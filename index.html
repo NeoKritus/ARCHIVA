@@ -2325,12 +2325,12 @@ input::placeholder, textarea::placeholder {
       </div>
 
       <div class="about-block">
-        <h4>USE</h4>
-        <p>ARCHIVA IS DESIGNED TO HELP STUDENTS ORGANIZE AND UNDERSTAND THEIR ACADEMIC RESULTS IN A CLEAR AND CONVENIENT WAY. IT IS INTENDED FOR PERSONAL ACADEMIC REFERENCE AND PLANNING.</p>
+        <h4>DATA &amp; PRIVACY</h4>
+        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON THIS DEVICE TO RECOVER AN UNFINISHED SESSION, AND ARE NEVER SENT TO A SERVER.</p>
       </div>
 
       <div class="about-block">
-        <h4>DISCLAIMER</h4>
+        <h4>ACADEMIC DISCLAIMER</h4>
         <p>ARCHIVA IS AN INDEPENDENT TOOL AND IS NOT AFFILIATED WITH ANNA UNIVERSITY. ALWAYS CONFIRM YOUR OFFICIAL CGPA AGAINST YOUR UNIVERSITY TRANSCRIPT.</p>
       </div>
 
@@ -2345,7 +2345,7 @@ input::placeholder, textarea::placeholder {
     <div class="modal-body">
       <div class="about-block privacy-copy">
         <h4>PRIVACY</h4>
-        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON YOUR DEVICE FOR FUTURE USE AND ARE NEVER SENT TO A SERVER.</p>
+        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON THIS DEVICE TO RECOVER AN UNFINISHED SESSION, AND ARE NEVER SENT TO A SERVER.</p>
       </div>
 
       <div class="about-block about-rights">
@@ -3018,7 +3018,7 @@ function buildResultTextSummary(result){
   });
   lines.push("");
   lines.push(`Overall CGPA : ${result.cgpa.toFixed(2)}`);
-  lines.push(`Arrear Count : ${result.arrears.length}`);
+  if(result.arrears.length > 0){ lines.push(`Arrear Count : ${result.arrears.length}`); }
   return lines.join("\n");
 }
 
@@ -3079,6 +3079,7 @@ function referencePdfHeader(doc, title){
   doc.text(`STUDENT NAME  : ${name}`,14,48);
   doc.text(`ROLL NUMBER   : ${roll}`,14,54);
   doc.text(`DEPARTMENT    : ${dept}`,14,60);
+  doc.text(`REGULATION    : ${pdfUpper(state.student.regulation)}`,14,66);
 }
 function referenceAutoTable(doc, options){
   if(typeof doc.autoTable!=="function") throw new Error("PDF TABLE ENGINE IS UNAVAILABLE.");
@@ -3099,49 +3100,97 @@ function ledgerSection(doc,title,y){
   doc.text(pdfUpper(title),18,y+4.8); return y+10;
 }
 
+function drawArchivaSealPdf(doc, result, centerY){
+  const w=doc.internal.pageSize.getWidth();
+  const cx=w/2, cy=centerY;
+  doc.saveGraphicsState();
+  doc.setDrawColor(190,58,48); doc.setLineWidth(1.2); doc.circle(cx,cy,34,"S");
+  doc.setLineWidth(.55); doc.circle(cx,cy,29.5,"S");
+  doc.setTextColor(75,70,62); doc.setFont("courier","bold"); doc.setFontSize(7);
+  doc.text("ACADEMIC LEDGER  ·  CGPA RECORD",cx,cy-18,{align:"center"});
+  doc.setTextColor(190,58,48); doc.setFontSize(8); doc.text("VERIFIED CGPA",cx,cy-10,{align:"center"});
+  doc.setFont("times","bold"); doc.setFontSize(30); doc.text(result.cgpa.toFixed(2),cx,cy+3,{align:"center"});
+  doc.setFont("courier","bold"); doc.setFontSize(7); doc.text("OUT OF 10.00",cx,cy+11,{align:"center"});
+  doc.setDrawColor(190,58,48); doc.setLineWidth(.35); doc.line(cx-17,cy+15,cx+17,cy+15);
+  doc.setFontSize(7); doc.text("SEALED RESULT  ·  ARCHIVA",cx,cy+22,{align:"center"});
+  doc.restoreGraphicsState();
+}
+
+function summaryTableRows(result){
+  return result.summaryRows.map((r,i)=>[
+    i+1,
+    `SEMESTER ${r.sem}`,
+    r.credits,
+    r.points,
+    r.gpa.toFixed(2),
+    r.cgpa.toFixed(2)
+  ]);
+}
+
 function generateShortPdf(result){
   ensurePdfEngine(); const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
   referencePdfHeader(doc,"ACADEMIC RESULT");
-  let y=70; y=ledgerSection(doc,"SEMESTER-WISE GPA",y);
-  referenceAutoTable(doc,{startY:y,head:[["SEMESTER","GPA","CREDITS"]],body:result.semesters.map(sem=>[
-    `SEMESTER ${sem}`,result.perSem[sem].gpa.toFixed(2),result.perSem[sem].credits
-  ])});
-  y=doc.lastAutoTable.finalY+12; y=ledgerSection(doc,"SEALED CGPA",y);
-  doc.setFont("times","bold"); doc.setFontSize(30); doc.setTextColor(190,58,48);
-  doc.text(result.cgpa.toFixed(2),105,y+20,{align:"center"});
-  doc.setFont("courier","bold"); doc.setFontSize(9); doc.setTextColor(75,70,62);
-  doc.text("VERIFIED CGPA  /  OUT OF 10.00",105,y+28,{align:"center"});
-  if(result.arrears.length){ doc.setTextColor(190,58,48); doc.text(`ARREAR COUNT : ${result.arrears.length}`,14,y+40); }
-  addReferenceWatermarkAndPage(doc,1); return doc;
+  let y=76;
+  y=ledgerSection(doc,"SEMESTER-WISE SUMMARY",y);
+  referenceAutoTable(doc,{
+    startY:y,
+    head:[["S.NO","SEMESTER","CREDITS","CREDIT POINTS","GPA","CGPA"]],
+    body:summaryTableRows(result),
+    styles:{fontSize:7.7,halign:"center"}
+  });
+  y=doc.lastAutoTable.finalY+12;
+  drawArchivaSealPdf(doc,result,Math.min(y+35,245));
+  addReferenceWatermarkAndPage(doc,1);
+  return doc;
 }
 
 function generateFullPdf(result){
   ensurePdfEngine(); const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"}); referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");
-  let y=70;
+  let y=76;
   result.semesters.forEach(sem=>{
-    if(y>245){doc.addPage();referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");y=70;}
+    if(y>238){doc.addPage();referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");y=76;}
     y=ledgerSection(doc,`SEMESTER ${sem}`,y);
-    const rows=(SEMESTERS[sem]||[]).map((subject,i)=>{const[code,name,credit]=subject;return[i+1,pdfUpper(code),pdfUpper(name),credit,pdfUpper(state.grades[gradeKey(sem,code)]||"")];});
+    const rows=(SEMESTERS[sem]||[]).map((subject,i)=>{
+      const[code,name,credit]=subject;
+      return[i+1,pdfUpper(code),pdfUpper(name),credit,pdfUpper(state.grades[gradeKey(sem,code)]||"")];
+    });
     referenceAutoTable(doc,{startY:y,head:[["S.NO","SUBJECT CODE","SUBJECT NAME","CREDIT","GRADE"]],body:rows,tableWidth:182,columnStyles:{0:{cellWidth:14},1:{cellWidth:28},2:{cellWidth:88},3:{cellWidth:22},4:{cellWidth:30}}});
     y=doc.lastAutoTable.finalY+7;
-    doc.setFont("courier","bold"); doc.setFontSize(9); doc.setTextColor(190,58,48); doc.text(`SEMESTER GPA : ${result.perSem[sem].gpa.toFixed(2)}`,14,y); y+=12;
+    doc.setFont("courier","bold"); doc.setFontSize(9); doc.setTextColor(190,58,48);
+    doc.text(`SEMESTER GPA : ${result.perSem[sem].gpa.toFixed(2)}`,14,y); y+=12;
   });
-  if(y>245){doc.addPage();referencePdfHeader(doc,"CONSOLIDATED RESULT");y=70;}
+
+  // Semester-wise summary must come immediately after all semester details.
+  if(y>225){doc.addPage();referencePdfHeader(doc,"SEMESTER-WISE SUMMARY");y=76;}
+  y=ledgerSection(doc,"SEMESTER-WISE SUMMARY",y);
+  referenceAutoTable(doc,{
+    startY:y,
+    head:[["S.NO","SEMESTER","CREDITS","CREDIT POINTS","GPA","CGPA"]],
+    body:summaryTableRows(result),
+    styles:{fontSize:7.7,halign:"center"}
+  });
+  y=doc.lastAutoTable.finalY+12;
+
+  // Overall result follows the semester-wise summary.
+  if(y>225){doc.addPage();referencePdfHeader(doc,"OVERALL RESULT");y=76;}
   y=ledgerSection(doc,"OVERALL RESULT",y);
   referenceAutoTable(doc,{startY:y,head:[["TOTAL CREDITS","TOTAL CREDIT POINTS","OVERALL CGPA"]],body:[[result.totalCredits,result.totalPoints,result.cgpa.toFixed(2)]],styles:{fontSize:9,halign:"center"}});
   y=doc.lastAutoTable.finalY+10;
+
   if(result.arrears.length){
-    if(y>235){doc.addPage();referencePdfHeader(doc,"ARREAR DETAILS");y=70;}
+    if(y>220){doc.addPage();referencePdfHeader(doc,"ARREAR DETAILS");y=76;}
     y=ledgerSection(doc,"ARREAR DETAILS",y);
     const rows=result.arrears.slice().sort((a,b)=>a.sem-b.sem).map((a,i)=>[i+1,a.sem,pdfUpper(a.code),pdfUpper(a.name),pdfUpper(a.grade)]);
-    referenceAutoTable(doc,{startY:y,head:[["S.NO","SEMESTER","SUBJECT CODE","SUBJECT NAME","GRADE"]],body:rows}); y=doc.lastAutoTable.finalY+10;
+    referenceAutoTable(doc,{startY:y,head:[["S.NO","SEMESTER","SUBJECT CODE","SUBJECT NAME","GRADE"]],body:rows});
+    y=doc.lastAutoTable.finalY+12;
   }
-  if(y>235){doc.addPage();referencePdfHeader(doc,"SEMESTER-WISE SUMMARY");y=70;}
-  y=ledgerSection(doc,"SEMESTER-WISE SUMMARY",y);
-  referenceAutoTable(doc,{startY:y,head:[["S.NO","SEMESTER","CREDITS","CREDIT POINTS","GPA","CGPA"]],body:result.summaryRows.map((r,i)=>[i+1,r.sem,r.credits,r.points,r.gpa.toFixed(2),r.cgpa.toFixed(2)])});
-  for(let pg=1;pg<=doc.getNumberOfPages();pg++){doc.setPage(pg);addReferenceWatermarkAndPage(doc,pg);} return doc;
+
+  if(y>230){doc.addPage();referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");y=76;}
+  drawArchivaSealPdf(doc,result,Math.min(y+38,245));
+  for(let pg=1;pg<=doc.getNumberOfPages();pg++){doc.setPage(pg);addReferenceWatermarkAndPage(doc,pg);}
+  return doc;
 }
 
 let currentPreviewDoc = null;
@@ -3914,14 +3963,8 @@ async function shareToGeneric(){
 
   // Contact email behavior.
   function isPhoneOrTablet(){
-    // Do not rely only on the user-agent. When a phone requests "Desktop Site",
-    // the UA may look like a desktop browser. Touch/coarse-pointer capability
-    // still identifies the actual phone/tablet in normal and Desktop Site modes.
     const ua = navigator.userAgent || '';
-    const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    const touchScreen = (navigator.maxTouchPoints || 0) > 0;
     return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) ||
-      (coarsePointer && touchScreen) ||
       (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
   }
 
@@ -3938,15 +3981,12 @@ async function shareToGeneric(){
     const gmailWeb = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + '&su=' + encodeURIComponent(subject);
 
     if(isPhoneOrTablet()){
-      // Phone/tablet: always use the device's native email compose handler/app chooser.
-      // This remains true even when the browser is displaying the desktop version of the site.
-      // ARCHIVA stays in the current browser tab.
+      // Phone/tablet: use the operating system's normal compose dialog/app chooser.
+      // This remains true even when the browser displays the desktop version of the site.
       window.location.href = mailto;
     }else{
-      // Laptop/desktop: open Gmail Compose in a separate tab.
-      // ARCHIVA remains open in the original tab and no Outlook route is used here.
-      const win = window.open(gmailWeb, '_blank', 'noopener,noreferrer');
-      if(win) win.opener = null;
+      // Laptop/desktop: go directly to Gmail's compose page, not Outlook.
+      window.location.href = gmailWeb;
     }
   }
 
