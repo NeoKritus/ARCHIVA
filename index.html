@@ -2089,6 +2089,10 @@ input::placeholder, textarea::placeholder {
             <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8.5"/><path d="M12 10.7v5.2"/><circle cx="12" cy="7.6" r="1" fill="currentColor" stroke="none"/></svg></span>
             <span>ABOUT</span>
           </button>
+          <button id="menuPrivacy" class="menu-action">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5 19 6v5.2c0 4.4-2.9 7.7-7 9.3-4.1-1.6-7-4.9-7-9.3V6l7-2.5Z"/><path d="M9.2 12.2 11.2 14l3.8-4"/></svg></span>
+            <span>PRIVACY &amp; TERMS</span>
+          </button>
         </div>
       </div>
     </div>
@@ -2321,13 +2325,27 @@ input::placeholder, textarea::placeholder {
       </div>
 
       <div class="about-block">
-        <h4>DATA &amp; PRIVACY</h4>
-        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON THIS DEVICE TO RECOVER AN UNFINISHED SESSION, AND ARE NEVER SENT TO A SERVER.</p>
+        <h4>USE</h4>
+        <p>ARCHIVA IS DESIGNED TO HELP STUDENTS ORGANIZE AND UNDERSTAND THEIR ACADEMIC RESULTS IN A CLEAR AND CONVENIENT WAY. IT IS INTENDED FOR PERSONAL ACADEMIC REFERENCE AND PLANNING.</p>
       </div>
 
       <div class="about-block">
-        <h4>ACADEMIC DISCLAIMER</h4>
+        <h4>DISCLAIMER</h4>
         <p>ARCHIVA IS AN INDEPENDENT TOOL AND IS NOT AFFILIATED WITH ANNA UNIVERSITY. ALWAYS CONFIRM YOUR OFFICIAL CGPA AGAINST YOUR UNIVERSITY TRANSCRIPT.</p>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="privacyModal">
+  <div class="modal" data-tab="Privacy and Terms">
+    <div class="modal-header"><h3>PRIVACY &amp; TERMS</h3><button class="close-x" data-close="privacyModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="about-block privacy-copy">
+        <h4>PRIVACY</h4>
+        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON YOUR DEVICE FOR FUTURE USE AND ARE NEVER SENT TO A SERVER.</p>
       </div>
 
       <div class="about-block about-rights">
@@ -2340,7 +2358,7 @@ input::placeholder, textarea::placeholder {
         <h4>CONTACT</h4>
         <div class="contact-line">
           <span class="contact-copy">FOR WEBSITE-RELATED QUERIES:</span>
-          <a class="contact-email" href="https://mail.google.com/mail/?view=cm&fs=1&to=NEOKRITUS%40GMAIL.COM&su=WEBSITE%20QUERY%20-%20ARCHIVA" target="_blank" rel="noopener noreferrer" aria-label="Open a Gmail compose window addressed to NEOKRITUS at Gmail with the subject WEBSITE QUERY - ARCHIVA">
+          <a class="contact-email" id="contactEmailLink" href="mailto:NEOKRITUS%40GMAIL.COM?subject=WEBSITE%20QUERY%20-%20ARCHIVA" aria-label="Compose an email to NEOKRITUS at Gmail with the subject WEBSITE QUERY - ARCHIVA">
             <span class="email-neo">NEOKRITUS</span><span class="email-at">@</span><span class="email-gmail">GMAIL.COM</span>
           </a>
         </div>
@@ -2556,7 +2574,7 @@ function cacheEls(){
     "calcBtn","resultStage","cgpaValue","viewReportBtn","reportBlock",
     "reportStudentInfo","reportSemesters","reportSummaryTable","reportArrears","reportOverallCgpa",
     "downloadBtn","downloadPanel","shareBtn","sharePanel","shareCopy","shareTo",
-    "themeSwitch","menuToggle","menuPanel","menuReset","menuHelp","menuAbout",
+    "themeSwitch","menuToggle","menuPanel","menuReset","menuHelp","menuAbout","menuPrivacy",
     "resetModal","confirmReset","helpModal","aboutModal",
     "pdfPreviewModal","pdfPreviewFrame","pdfPreviewTitle","pdfPreviewDownloadBtn",
     "recoverBanner","restoreRecover","dismissRecover",
@@ -2863,6 +2881,7 @@ function init(){
   els.menuReset.addEventListener("click", () => { closeAllPanels(null); openModal(els.resetModal); });
   els.menuHelp.addEventListener("click", () => { closeAllPanels(null); openModal(els.helpModal); });
   els.menuAbout.addEventListener("click", () => { closeAllPanels(null); openModal(els.aboutModal); });
+  if(els.menuPrivacy){ els.menuPrivacy.addEventListener("click", () => { closeAllPanels(null); openModal(document.getElementById("privacyModal")); }); }
   els.confirmReset.addEventListener("click", () => { performReset(); closeModal(els.resetModal); });
 
   // Download panel
@@ -3448,6 +3467,9 @@ async function shareToGeneric(){
     if(id === 'menuAbout'){
       e.preventDefault(); e.stopImmediatePropagation(); openModalSafe('aboutModal'); return;
     }
+    if(id === 'menuPrivacy'){
+      e.preventDefault(); e.stopImmediatePropagation(); openModalSafe('privacyModal'); return;
+    }
     if(id === 'menuReset'){
       e.preventDefault(); e.stopImmediatePropagation(); openModalSafe('resetModal'); return;
     }
@@ -3838,5 +3860,119 @@ async function shareToGeneric(){
 })();
 </script>
 
+
+<style>
+/* Privacy & Terms menu/modal: same visual system as the existing menu. */
+.menu-panel #menuPrivacy .menu-icon{ display:flex; align-items:center; justify-content:center; }
+.menu-panel #menuPrivacy .menu-icon svg{ width:18px; height:18px; }
+#privacyModal .modal-body{ text-transform:none; letter-spacing:normal; }
+#privacyModal .modal-body h4,
+#privacyModal .modal-body .about-rights-footer,
+#privacyModal .modal-header h3{ text-transform:uppercase; }
+/* Match Privacy body text exactly to the Copyright & Use body text. */
+#privacyModal .privacy-copy p{
+  font-size:11.5px !important;
+  line-height:1.72 !important;
+  color:var(--ink-faint) !important;
+  font-family:inherit !important;
+  letter-spacing:normal !important;
+  text-transform:uppercase !important;
+}
+</style>
+<script>
+(function(){
+  const byId = id => document.getElementById(id);
+
+  function openPrivacy(e){
+    if(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    }
+    const menu = byId('menuPanel');
+    const modal = byId('privacyModal');
+    if(menu) menu.classList.remove('show');
+    if(modal){
+      modal.classList.add('show');
+      document.body.classList.add('modal-open');
+    }
+  }
+
+  // Privacy & Terms: capture + direct button handling so it also works when a phone
+  // browser is switched to Desktop Site.
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest && e.target.closest('#menuPrivacy');
+    if(btn) openPrivacy(e);
+  }, true);
+
+  const privacyBtn = byId('menuPrivacy');
+  if(privacyBtn){
+    privacyBtn.onclick = openPrivacy;
+    privacyBtn.addEventListener('touchend', openPrivacy, {passive:false});
+    privacyBtn.addEventListener('pointerup', openPrivacy, {passive:false});
+  }
+
+  // Contact email behavior.
+  function isPhoneOrTablet(){
+    // Do not rely only on the user-agent. When a phone requests "Desktop Site",
+    // the UA may look like a desktop browser. Touch/coarse-pointer capability
+    // still identifies the actual phone/tablet in normal and Desktop Site modes.
+    const ua = navigator.userAgent || '';
+    const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const touchScreen = (navigator.maxTouchPoints || 0) > 0;
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) ||
+      (coarsePointer && touchScreen) ||
+      (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  }
+
+  function openContact(e){
+    if(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    }
+
+    const to = 'NEOKRITUS@gmail.com';
+    const subject = 'WEBSITE QUERY - ARCHIVA';
+    const mailto = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject);
+    const gmailWeb = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + '&su=' + encodeURIComponent(subject);
+
+    if(isPhoneOrTablet()){
+      // Phone/tablet: always use the device's native email compose handler/app chooser.
+      // This remains true even when the browser is displaying the desktop version of the site.
+      // ARCHIVA stays in the current browser tab.
+      window.location.href = mailto;
+    }else{
+      // Laptop/desktop: open Gmail Compose in a separate tab.
+      // ARCHIVA remains open in the original tab and no Outlook route is used here.
+      const win = window.open(gmailWeb, '_blank', 'noopener,noreferrer');
+      if(win) win.opener = null;
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    const link = e.target.closest && e.target.closest('#contactEmailLink');
+    if(link) openContact(e);
+  }, true);
+
+  const contact = byId('contactEmailLink');
+  if(contact){
+    contact.onclick = openContact;
+  }
+})();
+</script>
+
+
+<style>
+/* Ensure the fourth menu item remains touchable on mobile. */
+#menuPrivacy{ position:relative; z-index:10; pointer-events:auto; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+</style>
+
+
+<style>
+/* Final interaction hardening for Privacy & Terms. */
+#menuPrivacy{position:relative!important; z-index:99999!important; pointer-events:auto!important; touch-action:manipulation!important; cursor:pointer!important;}
+#menuPanel.show #menuPrivacy{display:flex!important; align-items:center!important;}
+</style>
 </body>
 </html>
