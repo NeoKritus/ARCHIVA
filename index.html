@@ -2024,6 +2024,28 @@ input::placeholder, textarea::placeholder {
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<style id="mobile-preview-and-report-toggle-fix">
+/* Mobile-safe in-page PDF preview: avoids Android's blank native iframe viewer. */
+.pdf-canvas-preview{
+  width:100%; min-height:240px; max-height:64vh; overflow:auto;
+  border:1.5px solid var(--ink); border-radius:var(--radius-s);
+  background:#f7f4ec; padding:8px; box-sizing:border-box;
+}
+.pdf-canvas-preview canvas{
+  display:block; width:100%; height:auto; margin:0 auto 10px;
+  box-shadow:0 1px 4px rgba(0,0,0,.22); background:white;
+}
+.pdf-preview-frame{ display:none; }
+.pdf-canvas-preview.is-empty{ display:flex; align-items:center; justify-content:center; color:var(--ink-muted); font-family:var(--font-mono); }
+.report-bottom-toggle-wrap{ display:flex; justify-content:center; margin:20px 0 4px; }
+.report-bottom-toggle{ font-size:11px; padding:9px 16px; min-height:40px; }
+@media(max-width:560px){
+  .pdf-canvas-preview{ min-height:220px; max-height:58dvh; padding:6px; }
+  .report-bottom-toggle{ width:min(100%,360px); font-size:10.5px; padding:9px 12px; }
+}
+</style>
 </head>
 <body>
 
@@ -2202,6 +2224,9 @@ input::placeholder, textarea::placeholder {
             </div>
           </div>
         </div>
+        <div class="report-bottom-toggle-wrap">
+          <button class="btn btn-secondary report-bottom-toggle" id="bottomReportToggle" type="button">Hide Complete Academic Report</button>
+        </div>
       </div>
 
       <div class="btn-row" style="justify-content:center; margin-top: 26px;">
@@ -2328,6 +2353,7 @@ input::placeholder, textarea::placeholder {
   <div class="modal modal-lg" data-tab="Preview">
     <div class="modal-header"><h3 id="pdfPreviewTitle">Preview</h3><button class="close-x" data-close="pdfPreviewModal">&times;</button></div>
     <div class="modal-body">
+      <div class="pdf-canvas-preview" id="pdfPreviewCanvasHost" aria-label="PDF preview"></div>
       <iframe class="pdf-preview-frame" id="pdfPreviewFrame"></iframe>
     </div>
     <div class="modal-footer">
@@ -3102,6 +3128,57 @@ function generateFullPdf(result){
 let currentPreviewDoc = null;
 let currentPreviewName = "";
 
+let previewRenderToken = 0;
+
+async function renderPdfCanvasPreview(doc){
+  const host = document.getElementById('pdfPreviewCanvasHost');
+  const frame = els.pdfPreviewFrame;
+  if(!host) return;
+  const token = ++previewRenderToken;
+  host.innerHTML = '';
+  host.classList.add('is-empty');
+  host.textContent = 'PREPARING PDF PREVIEW…';
+  if(frame){ frame.style.display='none'; frame.src='about:blank'; }
+
+  try{
+    if(!window.pdfjsLib) throw new Error('PDF PREVIEW ENGINE IS UNAVAILABLE.');
+    if(!pdfjsLib.GlobalWorkerOptions.workerSrc){
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    const data = new Uint8Array(doc.output('arraybuffer'));
+    const pdf = await pdfjsLib.getDocument({data}).promise;
+    if(token !== previewRenderToken) return;
+    host.innerHTML='';
+    host.classList.remove('is-empty');
+
+    const available = Math.max(280, host.clientWidth - 16);
+    for(let pageNumber=1; pageNumber<=pdf.numPages; pageNumber++){
+      if(token !== previewRenderToken) return;
+      const page = await pdf.getPage(pageNumber);
+      const base = page.getViewport({scale:1});
+      const scale = Math.min(2, Math.max(1, available / base.width));
+      const viewport = page.getViewport({scale});
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d', {alpha:false});
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      await page.render({canvasContext:context, viewport}).promise;
+      if(token !== previewRenderToken) return;
+      host.appendChild(canvas);
+    }
+  }catch(err){
+    // Keep a desktop/browser fallback if PDF.js cannot load.
+    host.innerHTML='';
+    host.classList.add('is-empty');
+    host.textContent='PDF preview is unavailable in this browser. Use OPEN or DOWNLOAD to view the PDF.';
+    if(frame){
+      const blobUrl = doc.output('bloburl');
+      frame.src = blobUrl;
+      frame.style.display='block';
+    }
+  }
+}
+
 function openPdfPreview(type){
   try{
     const result = computeOverall();
@@ -3111,115 +3188,47 @@ function openPdfPreview(type){
     currentPreviewName = ((type === "short" ? "ARCHIVA_ACADEMIC_RESULT" : "ARCHIVA_COMPLETE_REPORT") + rollPart + ".PDF").toUpperCase();
 
     els.pdfPreviewTitle.textContent = type === "short" ? "ACADEMIC RESULT PDF" : "COMPLETE ACADEMIC REPORT PDF";
-    const blobUrl = doc.output("bloburl");
-    els.pdfPreviewFrame.src = blobUrl;
     openModal(els.pdfPreviewModal);
+    renderPdfCanvasPreview(doc);
   }catch(err){
     showToast(err?.message || "Could not prepare the PDF.");
   }
 }
-
-/* ----------------------------------------------------------------
-   MOBILE-SAFE SAVE / SHARE
-   Why the old code broke on phones (esp. over GitHub Pages / iOS Safari):
-   - `doc.save(name)` (jsPDF) builds a blob: URL and click()s a hidden
-     <a download>. Mobile Safari (and several in-app/WebView browsers)
-     ignore the `download` attribute on blob: URLs — the tap just does
-     nothing visible, or silently opens/navigates instead of saving.
-   - The old share code only tried navigator.share() and, the instant
-     it rejected for ANY reason (including the user simply dismissing
-     the share sheet — an AbortError, not a failure), it fell through
-     to that same broken doc.save() call.
-   Fix: prefer the native Share sheet (the one reliable "save a file"
-   path on mobile) when the browser supports sharing files, treat a
-   user cancel as a cancel (not an error), and use a real DOM-attached
-   anchor click as the desktop/Android fallback with proper blob
-   cleanup.
-   ---------------------------------------------------------------- */
-async function saveOrShareBlob(blob, filename, opts){
-  opts = opts || {};
-  let file = null;
-  try{ file = new File([blob], filename, { type: blob.type || "application/pdf" }); }catch(e){ /* File ctor unsupported */ }
-
-  if(file && navigator.canShare && navigator.canShare({ files: [file] })){
-    try{
-      await navigator.share({ files: [file], title: opts.title || filename });
-      return "shared";
-    }catch(err){
-      if(err && err.name === "AbortError") return "cancelled"; // user closed the sheet — not an error
-      // any other failure (e.g. share target rejected the file) — fall through to direct download
-    }
-  }
-
-  try{
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.rel = "noopener";
-    a.style.position = "fixed";
-    a.style.opacity = "0";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 4000);
-    return "downloaded";
-  }catch(err){
-    // Last resort for browsers that block programmatic downloads entirely:
-    // open the PDF in a new tab so the user can use the browser's own
-    // Share/Save icon from its built-in PDF viewer.
-    try{
-      const url = URL.createObjectURL(blob);
-      window.open(url, "_blank", "noopener");
-      return "opened";
-    }catch(err2){
-      return "failed";
-    }
-  }
-}
-
-async function downloadCurrentPreviewPdf(){
+function downloadCurrentPreviewPdf(){
   if(!currentPreviewDoc) return;
-  const blob = currentPreviewDoc.output("blob");
-  const result = await saveOrShareBlob(blob, currentPreviewName, { title: "ARCHIVA Academic Result" });
-  if(result === "cancelled") return;
-  if(result === "failed"){
-    showToast("DOWNLOAD FAILED. TRY OPENING THIS PAGE IN YOUR BROWSER (NOT AN IN-APP BROWSER) AND RETRY.");
-    return;
-  }
+  currentPreviewDoc.save(currentPreviewName);
   closeModal(els.pdfPreviewModal);
-  showToast(
-    result === "shared" ? "CHOOSE SAVE FILE FROM THE SHARE SHEET." :
-    result === "opened" ? "PDF OPENED IN A NEW TAB — USE YOUR BROWSER'S SHARE/SAVE ICON." :
-    "DOWNLOAD STARTED."
-  );
+  showToast("DOWNLOAD STARTED.");
 }
 
 async function sharePdf(type){
-  let doc, filename, blob;
+  let doc, filename, file;
   try{
     const result = computeOverall();
     doc = type === "short" ? generateShortPdf(result) : generateFullPdf(result);
     const rollPart = state.student.roll ? "_" + String(state.student.roll).toUpperCase() : "";
     filename = ((type === "short" ? "ARCHIVA_ACADEMIC_RESULT" : "ARCHIVA_COMPLETE_REPORT") + rollPart + ".PDF").toUpperCase();
-    blob = doc.output("blob");
+    const blob = doc.output("blob");
+    file = new File([blob], filename, { type: "application/pdf" });
   }catch(err){
     showToast(err?.message || "Could not prepare the PDF.");
     return;
   }
 
-  const result = await saveOrShareBlob(blob, filename, { title: "ARCHIVA Academic Result" });
-  if(result === "cancelled") return;
-  if(result === "failed"){
-    showToast("SHARING FAILED. TRY OPENING THIS PAGE IN YOUR BROWSER (NOT AN IN-APP BROWSER) AND RETRY.");
-    return;
+  if(navigator.canShare && navigator.canShare({ files: [file] })){
+    try{
+      await navigator.share({ files: [file], title: "ARCHIVA Academic Result" });
+      return;
+    }catch(e){
+      /* If the user closes/cancels the native share sheet, do nothing. */
+      if(e && (e.name === "AbortError" || e.name === "NotAllowedError")){
+        return;
+      }
+      /* For other genuine sharing failures, continue to the download fallback. */
+    }
   }
-  if(result !== "shared"){
-    showToast(
-      result === "opened" ? "SHARING ISN'T SUPPORTED HERE — PDF OPENED IN A NEW TAB INSTEAD." :
-      "SHARING ISN'T SUPPORTED HERE — PDF DOWNLOADED INSTEAD."
-    );
-  }
+  doc.save(filename);
+  showToast("Sharing isn't supported here — PDF downloaded instead.");
 }
 
 async function shareToGeneric(){
@@ -3229,10 +3238,7 @@ async function shareToGeneric(){
     try{
       await navigator.share({ title: "ARCHIVA Academic Result", text });
       return;
-    }catch(e){
-      if(e && e.name === "AbortError") return; // user cancelled — not an error
-      copyResultText(); // sharing failed for some other reason — fall back to copy
-    }
+    }catch(e){ /* cancelled */ }
   } else {
     copyResultText();
   }
@@ -3741,6 +3747,94 @@ async function shareToGeneric(){
   }else{
     bindLiveFieldCleanup();
   }
+})();
+</script>
+
+
+
+<!-- MOBILE ACTION PANEL FIX: DOWNLOAD/SHARE OPTION VISIBILITY ONLY -->
+<style>
+/* This change affects normal mobile view only. Desktop behavior remains unchanged. */
+@media (max-width:600px){
+  /* Keep each option sheet attached directly below its own button. */
+  .result-stage .action-anchor{
+    position:relative !important;
+    overflow:visible !important;
+  }
+
+  #downloadPanel.show,
+  #sharePanel.show{
+    position:absolute !important;
+    top:calc(100% + 8px) !important;
+    bottom:auto !important;
+    left:50% !important;
+    right:auto !important;
+    width:min(300px, calc(100vw - 28px)) !important;
+    min-width:min(300px, calc(100vw - 28px)) !important;
+    max-width:calc(100vw - 28px) !important;
+    transform:translateX(-50%) !important;
+    margin:0 !important;
+    z-index:9999 !important;
+    display:block !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+
+  #downloadPanel.show button,
+  #sharePanel.show button{
+    min-height:48px !important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+}
+</style>
+
+
+<script>
+/* Two focused improvements only: mobile PDF preview and duplicate report close control. */
+(function(){
+  const bottom = document.getElementById('bottomReportToggle');
+  const top = document.getElementById('viewReportBtn');
+  const block = document.getElementById('reportBlock');
+  function syncReportButtons(){
+    if(!bottom || !top || !block) return;
+    const open = !!(window.state && state.reportOpen) || block.classList.contains('show');
+    top.textContent = open ? 'Hide Complete Academic Report' : 'View Complete Academic Report';
+    bottom.textContent = 'Hide Complete Academic Report';
+  }
+  if(bottom){
+    bottom.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(!top || !block) return;
+
+      /* Use the original, already-working report button logic so both buttons
+         always control exactly the same report state. */
+      if(block.classList.contains('show')){
+        top.click();
+      } else {
+        block.classList.remove('show');
+      }
+
+      requestAnimationFrame(function(){
+        syncReportButtons();
+        top.scrollIntoView({behavior:'smooth', block:'center'});
+      });
+    });
+  }
+  if(top){ top.addEventListener('click', function(){ setTimeout(syncReportButtons, 0); }); }
+  if(block && window.MutationObserver){
+    new MutationObserver(syncReportButtons).observe(block,{attributes:true,attributeFilter:['class']});
+  }
+  syncReportButtons();
+
+  document.querySelectorAll('[data-close="pdfPreviewModal"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(typeof previewRenderToken !== 'undefined') previewRenderToken++;
+      const host=document.getElementById('pdfPreviewCanvasHost');
+      if(host) host.innerHTML='';
+    });
+  });
 })();
 </script>
 
