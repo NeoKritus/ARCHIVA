@@ -1916,115 +1916,313 @@ input::placeholder, textarea::placeholder {
 
 
 /* ================================================================
-   FINAL CGPA — MINIATURE SEALED STAMP FOR COMPLETE REPORT
-   Replaces the old rectangular CGPA box.
+   UNIFIED ARCHIVA CGPA SEAL
+   The same two-circle stamped seal is used across the website and PDFs.
    ================================================================ */
 .report-final-seal-wrap{
-  display:flex!important;
-  justify-content:center!important;
-  align-items:center!important;
-  margin-top:22px!important;
-  padding:4px 0 2px!important;
+  display:flex!important; justify-content:center!important; align-items:center!important;
+  margin-top:22px!important; padding:4px 0 2px!important;
 }
 .report-final-seal{
   position:relative!important;
-  width:clamp(150px,18vw,190px)!important;
+  width:clamp(190px,24vw,245px)!important;
   aspect-ratio:1!important;
   border:2px solid var(--stamp)!important;
   border-radius:50%!important;
+  display:flex!important; flex-direction:column!important;
+  align-items:center!important; justify-content:center!important;
+  background:var(--card)!important; color:var(--stamp)!important;
+  transform:rotate(-5deg)!important; transform-origin:center!important;
+  box-shadow:none!important; overflow:hidden!important;
+}
+.report-final-seal::before{
+  content:""!important; position:absolute!important; inset:10px!important;
+  border:1.25px solid color-mix(in srgb, var(--stamp) 78%, transparent)!important;
+  border-radius:50%!important; pointer-events:none!important;
+}
+.report-final-seal::after{ display:none!important; content:none!important; }
+.report-final-seal .seal-top,
+.report-final-seal .seal-bottom,
+.report-final-seal .seal-label{
+  position:relative!important; z-index:1!important; font-family:var(--font-mono)!important;
+  text-align:center!important; max-width:78%!important; overflow-wrap:anywhere!important;
+}
+.report-final-seal .seal-top{
+  margin-bottom:8px!important; color:var(--ink-muted)!important;
+  font-size:7px!important; letter-spacing:.13em!important; line-height:1.35!important;
+}
+.report-final-seal .seal-label{
+  color:var(--stamp)!important; font-size:9px!important; font-weight:700!important;
+  letter-spacing:.22em!important; margin-bottom:4px!important;
+}
+.report-final-seal .seal-score{
+  position:relative!important; z-index:1!important; color:var(--stamp)!important;
+  font-family:var(--font-display)!important; font-size:clamp(42px,5vw,58px)!important;
+  font-weight:700!important; line-height:1!important; letter-spacing:-.02em!important;
+}
+.report-final-seal .seal-bottom{
+  margin-top:8px!important; color:var(--stamp)!important; font-size:6.6px!important;
+  font-weight:700!important; letter-spacing:.12em!important; line-height:1.35!important;
+}
+.report-final-seal .seal-scale{
+  position:relative!important; z-index:1!important; margin-top:5px!important;
+  color:var(--ink-muted)!important; font:700 6.5px var(--font-mono)!important;
+  letter-spacing:.14em!important; max-width:72%!important; text-align:center!important;
+}
+@media(max-width:720px){ .report-final-seal{width:190px!important;} }
+
+/* FINAL UNIFIED TWO-CIRCLE CGPA SEAL — used above View Complete Academic Report. */
+.ledger-cgpa-card{
+  border:2px solid var(--stamp)!important;
+  box-shadow:var(--shadow)!important;
+  overflow:hidden!important;
+}
+.ledger-cgpa-card::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:10px!important;
+  border:1.25px solid color-mix(in srgb, var(--stamp) 78%, transparent)!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+.ledger-cgpa-card::after{display:none!important; content:none!important;}
+.ledger-cgpa-top,.ledger-cgpa-bottom,.ledger-cgpa-main{position:relative!important; z-index:1!important;}
+.ledger-cgpa-top,.ledger-cgpa-bottom{max-width:78%!important; line-height:1.35!important; text-align:center!important;}
+.ledger-cgpa-main .stamp-label{font-size:9px!important; letter-spacing:.20em!important;}
+.ledger-cgpa-main .stamp-scale{font-size:7px!important; max-width:72%!important; text-align:center!important;}
+
+
+/* ================================================================
+   FINAL UNIFIED ARCHIVA ACADEMIC STAMP
+   Same seal above View Complete Academic Report, inside the report,
+   and in both generated PDFs through drawArchivaSealPdf().
+   ================================================================ */
+.ledger-cgpa-card,
+.report-final-seal{
+  position:relative!important;
+  aspect-ratio:1/1!important;
+  border:2px solid var(--stamp)!important;
+  border-radius:50%!important;
+  background:var(--card)!important;
+  color:var(--stamp)!important;
+  overflow:hidden!important;
+  box-shadow:none!important;
+}
+.ledger-cgpa-card{
+  width:clamp(230px,34vw,300px)!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
-  background:transparent!important;
-  color:var(--stamp)!important;
-  transform:rotate(-2.2deg)!important;
-  box-shadow:none!important;
+  transform:rotate(-8deg)!important;
+  transform-origin:center center!important;
+  margin:12px auto 18px!important;
 }
+.report-final-seal{
+  width:clamp(205px,25vw,255px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transform:rotate(-8deg)!important;
+  transform-origin:center center!important;
+}
+.ledger-cgpa-card::before,
 .report-final-seal::before{
   content:""!important;
   position:absolute!important;
-  inset:8px!important;
-  border:1px solid rgba(233,94,82,.88)!important;
+  inset:11px!important;
+  border:1.2px solid color-mix(in srgb,var(--stamp) 82%,transparent)!important;
   border-radius:50%!important;
   pointer-events:none!important;
 }
-.report-final-seal::after{
-  content:"VERIFIED"!important;
-  position:absolute!important;
-  left:50%!important;
-  top:52%!important;
-  transform:translate(-50%,-50%) rotate(-13deg)!important;
-  width:78%!important;
-  padding:3px 0!important;
-  border-top:1px solid rgba(233,94,82,.58)!important;
-  border-bottom:1px solid rgba(233,94,82,.58)!important;
-  color:rgba(233,94,82,.48)!important;
-  font:700 8px var(--font-mono)!important;
-  letter-spacing:.22em!important;
-  text-align:center!important;
-  pointer-events:none!important;
-  opacity:.75!important;
-}
+.ledger-cgpa-card::after,
+.report-final-seal::after{display:none!important;content:none!important;}
+
+.ledger-cgpa-top,
+.ledger-cgpa-bottom,
+.ledger-cgpa-main,
 .report-final-seal .seal-top,
-.report-final-seal .seal-bottom,
-.report-final-seal .seal-label{
-  position:relative!important;
-  z-index:1!important;
-  font-family:var(--font-mono)!important;
-  text-align:center!important;
-}
-.report-final-seal .seal-top{
-  max-width:118px!important;
-  margin-bottom:8px!important;
-  color:var(--ink-muted)!important;
-  font-size:7px!important;
-  letter-spacing:.15em!important;
-  line-height:1.45!important;
-}
-.report-final-seal .seal-label{
-  color:var(--stamp)!important;
-  font-size:9px!important;
-  font-weight:700!important;
-  letter-spacing:.20em!important;
-  margin-bottom:4px!important;
-}
-.report-final-seal .seal-score{
+.report-final-seal .seal-label,
+.report-final-seal .seal-score,
+.report-final-seal .seal-scale,
+.report-final-seal .seal-bottom{
   position:relative!important;
   z-index:2!important;
+}
+.ledger-cgpa-top,
+.ledger-cgpa-bottom{
+  width:72%!important;
+  max-width:72%!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px 8px!important;
+  border:0!important;
+  padding:0!important;
+  min-height:0!important;
+  font-size:7px!important;
+  letter-spacing:.16em!important;
+  line-height:1.45!important;
+  text-align:center!important;
+}
+.ledger-cgpa-top span,
+.ledger-cgpa-bottom span{white-space:nowrap!important;}
+.ledger-cgpa-top span:first-child::after,
+.ledger-cgpa-bottom span:first-child::after{content:" · "!important;}
+.ledger-cgpa-main{
+  width:100%!important;
+  padding:5px 10px 4px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+.ledger-cgpa-main .stamp-label,
+.report-final-seal .seal-label{
+  border:0!important;
+  padding:0!important;
+  margin:4px 0 1px!important;
+  color:var(--stamp)!important;
+  font-family:var(--font-mono)!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:.24em!important;
+  line-height:1.2!important;
+}
+.ledger-cgpa-main .stamp-cgpa,
+.report-final-seal .seal-score{
+  position:relative!important;
+  z-index:3!important;
+  margin:0!important;
   color:var(--stamp)!important;
   font-family:var(--font-display)!important;
-  font-size:clamp(38px,4vw,52px)!important;
+  font-size:clamp(48px,7.4vw,64px)!important;
   font-weight:700!important;
-  line-height:1!important;
-  letter-spacing:-.02em!important;
+  line-height:.96!important;
+  letter-spacing:-.03em!important;
   text-shadow:none!important;
 }
+
+/* View Complete Academic Report seal: lift only the dynamic CGPA number
+   slightly upward and diagonally to sit more naturally over the VERIFIED stamp. */
+.report-final-seal .seal-score{
+  transform:translate(3px,-8px)!important;
+}
+.stamp-verified,
+.seal-verified{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%) rotate(-8deg)!important;
+  z-index:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:68%!important;
+  height:38px!important;
+  color:color-mix(in srgb,var(--stamp) 48%,transparent)!important;
+  font-family:var(--font-mono)!important;
+  font-size:9px!important;
+  font-weight:700!important;
+  letter-spacing:.25em!important;
+  opacity:.78!important;
+  white-space:nowrap!important;
+  pointer-events:none!important;
+}
+.stamp-verified::before,
+.stamp-verified::after,
+.seal-verified::before,
+.seal-verified::after{
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  border-top:1px solid color-mix(in srgb,var(--stamp) 55%,transparent)!important;
+}
+.stamp-verified::before,
+.seal-verified::before{top:3px!important;}
+.stamp-verified::after,
+.seal-verified::after{bottom:3px!important;}
+.ledger-cgpa-main .stamp-scale,
+.report-final-seal .seal-scale{
+  position:relative!important;
+  z-index:3!important;
+  min-width:0!important;
+  border:0!important;
+  margin:4px 0 0!important;
+  padding:0!important;
+  color:var(--ink-muted)!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.15em!important;
+  text-align:center!important;
+}
+.ledger-cgpa-bottom,
 .report-final-seal .seal-bottom{
-  margin-top:8px!important;
+  margin-top:6px!important;
   color:var(--stamp)!important;
+  font-family:var(--font-mono)!important;
   font-size:7px!important;
   font-weight:700!important;
   letter-spacing:.14em!important;
+  line-height:1.45!important;
+  text-align:center!important;
 }
-.report-final-seal .seal-scale{
-  position:relative!important;
-  z-index:1!important;
-  margin-top:4px!important;
+.report-final-seal .seal-top{
+  width:74%!important;
+  margin:0 0 7px!important;
   color:var(--ink-muted)!important;
-  font:700 6px var(--font-mono)!important;
-  letter-spacing:.16em!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.14em!important;
+  line-height:1.45!important;
+  text-align:center!important;
 }
-@media(max-width:720px){
-  .report-final-seal{
-    width:156px!important;
-  }
+.report-final-seal .seal-bottom{max-width:74%!important;}
+@media(max-width:560px){
+  .ledger-cgpa-card{width:min(72vw,270px)!important;transform:rotate(-8deg)!important;}
+  .report-final-seal{width:min(62vw,225px)!important;transform:rotate(-8deg)!important;}
+  .ledger-cgpa-main .stamp-cgpa{font-size:clamp(44px,15vw,60px)!important;}
+  .report-final-seal .seal-score{font-size:clamp(42px,13vw,56px)!important;}
+}
+
+
+
+/* ===== FINAL CGPA NUMBER FONT REFINEMENT =====
+   Only the CGPA number gets a different, more aesthetic font.
+   Its size, placement and tilt remain unchanged. */
+.ledger-cgpa-main .stamp-cgpa,
+.report-final-seal .seal-score{
+  color:#ff8a7c!important;
+  background:none!important;
+  -webkit-background-clip:initial!important;
+  background-clip:initial!important;
+  -webkit-text-fill-color:currentColor!important;
+  font-family:"Palatino Linotype","Book Antiqua",Palatino,serif!important;
+  font-size:clamp(54px,8vw,70px)!important;
+  font-weight:800!important;
+  letter-spacing:-.045em!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.08), 1px 2px 0 rgba(178,58,46,.22)!important;
+}
+.report-final-seal .seal-score{
+  transform:translate(3px,-8px)!important;
+}
+@media(max-width:560px){
+  .ledger-cgpa-main .stamp-cgpa{font-size:clamp(48px,16vw,64px)!important;}
+  .report-final-seal .seal-score{font-size:clamp(46px,14vw,60px)!important;}
 }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style id="mobile-preview-and-report-toggle-fix">
 /* Mobile-safe in-page PDF preview: avoids Android's blank native iframe viewer. */
@@ -2046,6 +2244,215 @@ input::placeholder, textarea::placeholder {
   .report-bottom-toggle{ width:min(100%,360px); font-size:10.5px; padding:9px 12px; }
 }
 </style>
+
+<style id="final-identical-seal-everywhere">
+/* ================================================================
+   FINAL LOCKED ARCHIVA SEAL
+   Calculate & Seal, View Complete Academic Report and both PDF
+   generators share this exact two-circle stamp design.
+   ================================================================ */
+.ledger-cgpa-card,
+.report-final-seal{
+  --archiva-seal-size:clamp(240px,36vw,300px);
+  position:relative!important;
+  width:var(--archiva-seal-size)!important;
+  aspect-ratio:1/1!important;
+  min-height:0!important;
+  border:2px solid var(--stamp)!important;
+  border-radius:50%!important;
+  background:var(--card)!important;
+  color:var(--stamp)!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  transform:rotate(-8deg)!important;
+  transform-origin:center center!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:14px auto 20px!important;
+}
+.report-final-seal::before,
+.ledger-cgpa-card::before{
+  content:""!important;
+  position:absolute!important;
+  inset:11px!important;
+  border:1.2px solid color-mix(in srgb,var(--stamp) 82%,transparent)!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+.report-final-seal::after,
+.ledger-cgpa-card::after{display:none!important;content:none!important;}
+
+/* Top identity is the same visual line in both seals. */
+.ledger-cgpa-top,
+.report-final-seal .seal-top{
+  position:relative!important;
+  z-index:3!important;
+  width:76%!important;
+  max-width:none!important;
+  margin:0 0 10px!important;
+  padding:0!important;
+  border:0!important;
+  min-height:0!important;
+  color:var(--ink-muted)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:8px!important;
+  font-weight:700!important;
+  letter-spacing:.16em!important;
+  line-height:1.35!important;
+}
+.ledger-cgpa-top{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+}
+.ledger-cgpa-top span{white-space:nowrap!important;}
+.ledger-cgpa-top span:first-child::after{content:" · "!important;}
+.ledger-cgpa-top span:last-child::after{content:none!important;}
+
+.ledger-cgpa-main{
+  position:relative!important;
+  z-index:3!important;
+  width:100%!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.ledger-cgpa-main .stamp-label,
+.report-final-seal .seal-label{
+  position:relative!important;
+  z-index:4!important;
+  margin:0 0 5px!important;
+  padding:0!important;
+  border:0!important;
+  color:var(--stamp)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:.24em!important;
+}
+
+/* VERIFIED and its two rules stay directly behind the dynamic CGPA. */
+.stamp-verified,
+.seal-verified{
+  position:absolute!important;
+  z-index:1!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-48%) rotate(-2deg)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:70%!important;
+  height:36px!important;
+  color:color-mix(in srgb,var(--stamp) 52%,transparent)!important;
+  font-family:var(--font-mono)!important;
+  font-size:9px!important;
+  font-weight:700!important;
+  letter-spacing:.26em!important;
+  white-space:nowrap!important;
+  opacity:.82!important;
+  pointer-events:none!important;
+}
+.stamp-verified::before,
+.stamp-verified::after,
+.seal-verified::before,
+.seal-verified::after{
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  border-top:1px solid color-mix(in srgb,var(--stamp) 65%,transparent)!important;
+}
+.stamp-verified::before,.seal-verified::before{top:3px!important;}
+.stamp-verified::after,.seal-verified::after{bottom:3px!important;}
+
+.ledger-cgpa-main .stamp-cgpa,
+.report-final-seal .seal-score{
+  position:relative!important;
+  z-index:4!important;
+  margin:0!important;
+  transform:translate(3px,-8px)!important;
+  color:#ff8a7c!important;
+  background:none!important;
+  -webkit-text-fill-color:currentColor!important;
+  text-align:center!important;
+  font-family:"Palatino Linotype","Book Antiqua",Palatino,serif!important;
+  font-size:clamp(54px,8vw,70px)!important;
+  font-weight:800!important;
+  line-height:.95!important;
+  letter-spacing:-.045em!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.08),1px 2px 0 rgba(178,58,46,.22)!important;
+}
+
+.ledger-cgpa-main .stamp-scale,
+.report-final-seal .seal-scale{
+  position:relative!important;
+  z-index:4!important;
+  margin:7px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  min-width:0!important;
+  color:var(--ink-muted)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.15em!important;
+}
+.ledger-cgpa-bottom,
+.report-final-seal .seal-bottom{
+  position:relative!important;
+  z-index:4!important;
+  width:76%!important;
+  max-width:none!important;
+  margin:12px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  color:var(--stamp)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.14em!important;
+  line-height:1.35!important;
+}
+.ledger-cgpa-bottom{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+.ledger-cgpa-bottom span:first-child::after{content:" · "!important;}
+.ledger-cgpa-bottom span:last-child::after{content:none!important;}
+
+.report-final-seal-wrap{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  margin-top:22px!important;
+  padding:0!important;
+}
+
+@media(max-width:560px){
+  .ledger-cgpa-card,
+  .report-final-seal{
+    --archiva-seal-size:min(72vw,270px);
+    margin:12px auto 18px!important;
+  }
+  .ledger-cgpa-main .stamp-cgpa,
+  .report-final-seal .seal-score{
+    font-size:clamp(48px,16vw,64px)!important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2185,14 +2592,13 @@ input::placeholder, textarea::placeholder {
     <!-- ============ FEATURE 6: RESULT ============ -->
     <div class="card result-stage" id="resultStage">
       <div class="stamp-wrap">
-        <div class="ledger-cgpa-card">
-          <div class="ledger-cgpa-top"><span>ACADEMIC LEDGER</span><span>CGPA RECORD</span></div>
-          <div class="ledger-cgpa-main">
-            <div class="stamp-label">VERIFIED CGPA</div>
-            <div class="stamp-cgpa" id="cgpaValue">0.00</div>
-            <div class="stamp-scale">OUT OF 10.00</div>
-          </div>
-          <div class="ledger-cgpa-bottom"><span>SEALED RESULT</span><span>ARCHIVA</span></div>
+        <div class="report-final-seal" aria-label="CGPA result seal">
+          <div class="seal-top">ARCHIVA · ACADEMIC LEDGER</div>
+          <div class="seal-label">CGPA</div>
+          <div class="seal-verified" aria-hidden="true">VERIFIED</div>
+          <div class="seal-score" id="cgpaValue">0.00</div>
+          <div class="seal-scale">OUT OF 10.00</div>
+          <div class="seal-bottom">SEALED RESULT · ARCHIVA</div>
         </div>
         <div class="cgpa-actions">
           <button class="btn btn-secondary" id="viewReportBtn">View Complete Academic Report</button>
@@ -2212,19 +2618,20 @@ input::placeholder, textarea::placeholder {
           <div id="reportSummaryTable"></div>
         </div>
 
-        <div class="report-section">
+        <div class="report-section" id="reportArrearsSection">
           <h4>Arrear Details</h4>
           <div id="reportArrears"></div>
         </div>
 
         <div class="report-section report-final-section" style="text-align:center; margin-top:30px;">
           <div class="report-final-seal-wrap">
-            <div class="report-final-seal" aria-label="Final CGPA verified seal">
+            <div class="report-final-seal" aria-label="CGPA result seal">
               <div class="seal-top">ARCHIVA · ACADEMIC LEDGER</div>
-              <div class="seal-label">FINAL CGPA</div>
+              <div class="seal-label">CGPA</div>
+              <div class="seal-verified" aria-hidden="true">VERIFIED</div>
               <div class="seal-score" id="reportOverallCgpa">0.00</div>
               <div class="seal-scale">OUT OF 10.00</div>
-              <div class="seal-bottom">SEALED RESULT</div>
+              <div class="seal-bottom">SEALED RESULT · ARCHIVA</div>
             </div>
           </div>
         </div>
@@ -2762,13 +3169,16 @@ function renderReport(result){
     <tbody>${result.summaryRows.map((r,i)=>`<tr><td class="num">${i+1}</td><td class="num">${r.sem}</td><td class="num">${r.credits}</td><td class="num">${r.points}</td><td class="num">${r.gpa.toFixed(2)}</td><td class="num">${r.cgpa.toFixed(2)}</td></tr>`).join("")}</tbody>
   </table>`;
 
+  const arrearSection = document.getElementById("reportArrearsSection");
   if(result.arrears.length){
+    if(arrearSection) arrearSection.style.display = "";
     els.reportArrears.innerHTML = `<table class="report-table">
       <thead><tr><th>S.No</th><th>Semester</th><th>Code</th><th>Subject</th><th>Grade</th></tr></thead>
       <tbody>${result.arrears.map((a,i)=>`<tr><td class="num">${i+1}</td><td class="num">${a.sem}</td><td>${a.code}</td><td>${a.name}</td><td class="num">${a.grade}</td></tr>`).join("")}</tbody>
     </table>`;
   } else {
-    els.reportArrears.innerHTML = `<div class="arrear-empty">No standing arrears. Congratulations!</div>`;
+    if(arrearSection) arrearSection.style.display = "none";
+    els.reportArrears.innerHTML = "";
   }
 
   els.reportOverallCgpa.textContent = result.cgpa.toFixed(2);
@@ -3036,6 +3446,7 @@ function copyResultText(){
 }
 
 /* ---- PDF GENERATION: REPLACED WITH REFERENCE HTML ENGINE ---- */
+/* PDF seal policy: capture the exact View Complete Academic Report seal; use a clean box fallback only if capture fails. */
 function pdfUpper(value){ return String(value ?? "").toUpperCase(); }
 
 function addReferenceWatermarkAndPage(doc, pageNum){
@@ -3100,20 +3511,106 @@ function ledgerSection(doc,title,y){
   doc.text(pdfUpper(title),18,y+4.8); return y+10;
 }
 
-function drawArchivaSealPdf(doc, result, centerY){
+async function captureReferenceSealImage(result){
+  /* Capture the actual web seal used above “View Complete Academic Report”.
+     This makes the PDF seal a direct visual copy instead of a separately
+     redrawn approximation. */
+  const source = document.querySelector('.result-stage .stamp-wrap > .report-final-seal');
+  if(!source || !window.html2canvas) return null;
+
+  if(document.fonts && document.fonts.ready){
+    try{ await document.fonts.ready; }catch(e){}
+  }
+
+  const clone = source.cloneNode(true);
+  clone.querySelectorAll('.seal-score').forEach(el=>{ el.textContent=result.cgpa.toFixed(2); });
+  clone.removeAttribute('id');
+  clone.style.setProperty('--archiva-seal-size','300px');
+  clone.style.width='300px';
+  clone.style.height='300px';
+  clone.style.maxWidth='none';
+  clone.style.margin='0';
+  clone.style.visibility='visible';
+
+  const host=document.createElement('div');
+  host.setAttribute('aria-hidden','true');
+  host.style.cssText='position:fixed;left:-10000px;top:0;width:320px;height:320px;display:flex;align-items:center;justify-content:center;overflow:visible;pointer-events:none;z-index:-1;';
+  host.appendChild(clone);
+  document.body.appendChild(host);
+
+  try{
+    const canvas=await window.html2canvas(host,{
+      backgroundColor:null,
+      scale:3,
+      logging:false,
+      useCORS:true,
+      allowTaint:false
+    });
+    return canvas.toDataURL('image/png');
+  }catch(err){
+    return null;
+  }finally{
+    host.remove();
+  }
+}
+
+function drawCleanSealFallbackPdf(doc, result, centerY){
+  /* Final clean PDF fallback:
+     - shorter double-outline box
+     - no rules above/below the CGPA
+     - balanced vertical spacing
+     - footer kept safely away from the border */
   const w=doc.internal.pageSize.getWidth();
-  const cx=w/2, cy=centerY;
+  const boxW=120, boxH=50, x=(w-boxW)/2, y=centerY-boxH/2;
+  const cx=w/2;
+
   doc.saveGraphicsState();
-  doc.setDrawColor(190,58,48); doc.setLineWidth(1.2); doc.circle(cx,cy,34,"S");
-  doc.setLineWidth(.55); doc.circle(cx,cy,29.5,"S");
-  doc.setTextColor(75,70,62); doc.setFont("courier","bold"); doc.setFontSize(7);
-  doc.text("ACADEMIC LEDGER  ·  CGPA RECORD",cx,cy-18,{align:"center"});
-  doc.setTextColor(190,58,48); doc.setFontSize(8); doc.text("VERIFIED CGPA",cx,cy-10,{align:"center"});
-  doc.setFont("times","bold"); doc.setFontSize(30); doc.text(result.cgpa.toFixed(2),cx,cy+3,{align:"center"});
-  doc.setFont("courier","bold"); doc.setFontSize(7); doc.text("OUT OF 10.00",cx,cy+11,{align:"center"});
-  doc.setDrawColor(190,58,48); doc.setLineWidth(.35); doc.line(cx-17,cy+15,cx+17,cy+15);
-  doc.setFontSize(7); doc.text("SEALED RESULT  ·  ARCHIVA",cx,cy+22,{align:"center"});
+
+  /* Shorter, professional double border. */
+  doc.setDrawColor(178,58,46); doc.setLineWidth(.75);
+  doc.roundedRect(x,y,boxW,boxH,2.6,2.6,'S');
+  doc.setDrawColor(190,58,48); doc.setLineWidth(.22);
+  doc.roundedRect(x+4,y+4,boxW-8,boxH-8,1.4,1.4,'S');
+
+  /* Ruled-paper background remains continuous through the full box. */
+  doc.setDrawColor(218,213,200); doc.setLineWidth(.18);
+  for(let ly=30;ly<y+boxH;ly+=7){
+    if(ly>y+4) doc.line(x+4,ly,x+boxW-4,ly);
+  }
+
+  /* Heading. */
+  doc.setTextColor(75,70,62); doc.setFont('courier','bold'); doc.setFontSize(8.8);
+  doc.text('ARCHIVA · ACADEMIC LEDGER',cx,y+9,{align:'center'});
+
+  /* CGPA label. */
+  doc.setTextColor(178,58,46); doc.setFont('courier','bold'); doc.setFontSize(9.4);
+  doc.text('CGPA',cx,y+16,{align:'center'});
+
+  /* Clean score presentation — intentionally no line above or below. */
+  const scoreY=y+31;
+  doc.setTextColor(178,58,46); doc.setFont('times','bolditalic'); doc.setFontSize(30);
+  doc.text(result.cgpa.toFixed(2),cx,scoreY,{align:'center'});
+
+  /* Comfortable spacing below the CGPA. */
+  doc.setTextColor(75,70,62); doc.setFont('courier','bold'); doc.setFontSize(7.6);
+  doc.text('OUT OF 10.00',cx,y+39,{align:'center'});
+
+  /* Footer sits clearly inside the border with safe bottom breathing room. */
+  doc.setTextColor(178,58,46); doc.setFont('courier','bold'); doc.setFontSize(7.0);
+  doc.text('SEALED RESULT · ARCHIVA',cx,y+44,{align:'center'});
+
   doc.restoreGraphicsState();
+}
+async function drawArchivaSealPdf(doc, result, centerY){
+  const sealImage=await captureReferenceSealImage(result);
+  const w=doc.internal.pageSize.getWidth();
+  if(sealImage){
+    /* The image is captured directly from the same DOM seal used on the page. */
+    const size=76;
+    doc.addImage(sealImage,'PNG',(w-size)/2,centerY-size/2,size,size,undefined,'FAST');
+    return;
+  }
+  drawCleanSealFallbackPdf(doc,result,centerY);
 }
 
 function summaryTableRows(result){
@@ -3127,7 +3624,7 @@ function summaryTableRows(result){
   ]);
 }
 
-function generateShortPdf(result){
+async function generateShortPdf(result){
   ensurePdfEngine(); const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
   referencePdfHeader(doc,"ACADEMIC RESULT");
@@ -3140,12 +3637,12 @@ function generateShortPdf(result){
     styles:{fontSize:7.7,halign:"center"}
   });
   y=doc.lastAutoTable.finalY+12;
-  drawArchivaSealPdf(doc,result,Math.min(y+35,245));
+  await drawArchivaSealPdf(doc,result,Math.min(y+35,245));
   addReferenceWatermarkAndPage(doc,1);
   return doc;
 }
 
-function generateFullPdf(result){
+async function generateFullPdf(result){
   ensurePdfEngine(); const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"}); referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");
   let y=76;
@@ -3188,7 +3685,7 @@ function generateFullPdf(result){
   }
 
   if(y>230){doc.addPage();referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");y=76;}
-  drawArchivaSealPdf(doc,result,Math.min(y+38,245));
+  await drawArchivaSealPdf(doc,result,Math.min(y+38,245));
   for(let pg=1;pg<=doc.getNumberOfPages();pg++){doc.setPage(pg);addReferenceWatermarkAndPage(doc,pg);}
   return doc;
 }
@@ -3247,10 +3744,10 @@ async function renderPdfCanvasPreview(doc){
   }
 }
 
-function openPdfPreview(type){
+async function openPdfPreview(type){
   try{
     const result = computeOverall();
-    const doc = type === "short" ? generateShortPdf(result) : generateFullPdf(result);
+    const doc = type === "short" ? await generateShortPdf(result) : await generateFullPdf(result);
     currentPreviewDoc = doc;
     const rollPart = state.student.roll ? "_" + String(state.student.roll).toUpperCase() : "";
     currentPreviewName = ((type === "short" ? "ARCHIVA_ACADEMIC_RESULT" : "ARCHIVA_COMPLETE_REPORT") + rollPart + ".PDF").toUpperCase();
@@ -3273,7 +3770,7 @@ async function sharePdf(type){
   let doc, filename, file;
   try{
     const result = computeOverall();
-    doc = type === "short" ? generateShortPdf(result) : generateFullPdf(result);
+    doc = type === "short" ? await generateShortPdf(result) : await generateFullPdf(result);
     const rollPart = state.student.roll ? "_" + String(state.student.roll).toUpperCase() : "";
     filename = ((type === "short" ? "ARCHIVA_ACADEMIC_RESULT" : "ARCHIVA_COMPLETE_REPORT") + rollPart + ".PDF").toUpperCase();
     const blob = doc.output("blob");
