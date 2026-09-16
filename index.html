@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCHIVA — Academic Ledger</title>
+<meta name="copyright" content="© 2026 ARCHIVA. All rights reserved.">
+<meta name="author" content="ARCHIVA">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</head>
+<body>
+
+<!-- photocopy grain overlay -->
+<svg id="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noiseFilter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+</svg>
+
+<div id="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <div class="brand">
+      <span>ARCHIVA
+        <small><span class="ledger-dot" aria-hidden="true">•</span> Academic Ledger <span class="ledger-dot" aria-hidden="true">•</span></small>
+      </span>
+    </div>
+    <div class="topbar-controls">
+      <div class="action-anchor">
+        <button class="icon-btn" id="menuToggle" title="Menu" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div class="action-panel menu-panel" id="menuPanel" style="right:0; left:auto; margin-top:8px;">
+          <div class="menu-row-theme">
+            <span>Theme</span>
+            <div class="theme-switch" id="themeSwitch"><div class="knob"></div></div>
+          </div>
+          <button id="menuReset" class="menu-action">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M6.7 18.2A8 8 0 0 0 19.2 14M17.3 5.8A8 8 0 0 0 4.8 10"/></svg></span>
+            <span>RESET FILE</span>
+          </button>
+          <button id="menuHelp" class="menu-action">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8.5"/><path d="M9.45 9.1a2.6 2.6 0 1 1 4.12 2.08c-1.03.77-1.72 1.34-1.72 2.78"/><path d="M12 16.9h.01" stroke-width="3" stroke-linecap="round"/></svg></span>
+            <span>HOW TO USE</span>
+          </button>
+          <button id="menuAbout" class="menu-action">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8.5"/><path d="M12 10.7v5.2"/><circle cx="12" cy="7.6" r="1" fill="currentColor" stroke="none"/></svg></span>
+            <span>ABOUT</span>
+          </button>
+          <button id="menuPrivacy" class="menu-action">
+            <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5 19 6v5.2c0 4.4-2.9 7.7-7 9.3-4.1-1.6-7-4.9-7-9.3V6l7-2.5Z"/><path d="M9.2 12.2 11.2 14l3.8-4"/></svg></span>
+            <span>PRIVACY &amp; TERMS</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="hero">
+      <div class="eyebrow form-code-line" aria-label="Form CGPA">
+        <span class="form-single-line" aria-hidden="true"></span>
+        <span class="ledger-barcode" aria-hidden="true"></span>
+        <span>Form CGPA</span>
+        <span class="ledger-barcode" aria-hidden="true"></span>
+        <span class="form-single-line" aria-hidden="true"></span>
+      </div>
+      <h1>FILE YOUR GRADES.<br>GET IT STAMPED.</h1>
+      <p class="hero-single-line" aria-label="Enter your record. File each semester. Get a sealed CGPA. Ready to download or share.">
+        <span class="hero-line-group"><span class="hero-phrase accent">ENTER YOUR RECORD.</span><span class="hero-phrase">FILE EACH SEMESTER.</span></span>
+        <span class="hero-line-group"><span class="hero-phrase accent">GET A SEALED CGPA.</span><span class="hero-phrase">READY TO DOWNLOAD OR SHARE.</span></span>
+      </p>
+    </div>
+
+    <div class="recover-banner" id="recoverBanner">
+      <span>A previous ledger was found on this device. Restore it?</span>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary" id="dismissRecover">Discard</button>
+        <button class="btn btn-primary" id="restoreRecover">Restore</button>
+      </div>
+    </div>
+
+    <!-- ============ FEATURE 3: STUDENT DETAILS ============ -->
+    <div class="card" id="studentDetailsCard">
+      <div class="card-head">
+        <h2 class="card-title">Record Card</h2>
+        <span class="card-sub">§1 — Identity</span>
+      </div>
+      <div class="field-grid">
+        <div class="field" id="fieldName">
+          <label for="studentName">Student Name</label>
+          <input type="text" id="studentName" placeholder="e.g. NEOKRITUS" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false">
+          <div class="field-error">PLEASE ENTER YOUR NAME.</div>
+        </div>
+        <div class="field" id="fieldRoll">
+          <label for="rollNumber">Roll Number</label>
+          <input type="text" id="rollNumber" placeholder="2023XXXXXX" autocomplete="off" maxlength="10">
+          <div class="field-error">PLEASE ENTER A VALID ROLL NUMBER.</div>
+        </div>
+        <div class="field" id="fieldDept">
+          <label for="department">Department</label>
+          <div class="select-wrap">
+            <select id="department">
+              <option>Electronics Engineering</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="fieldReg">
+          <label for="regulation">Regulation</label>
+          <div class="select-wrap"><select id="regulation"><option>2023</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FEATURE 4: SEMESTER SELECTION & GRADE ENTRY ============ -->
+    <div class="card">
+      <div class="card-head">
+        <h2 class="card-title">Semester Sheets</h2>
+        <span class="card-sub sem-select-hint" id="semSelectError">§2 — SELECT ANY SEMESTER(S) TO FILE</span>
+      </div>
+
+      <div class="semester-workspace">
+        <aside class="semester-sidebar" aria-label="Semester sheets">
+          <div class="semester-sidebar-label">Semester Sheets</div>
+          <div class="sem-tabs" id="semTabs"></div>
+        </aside>
+        <div class="sem-panel">
+        <div class="sem-panel-head">
+          <h3 id="semPanelTitle">Semester 1</h3>
+          <span class="sem-gpa-line" id="semPanelGpa"></span>
+        </div>
+        <div id="semTableWrap"></div>
+        <div class="grade-error hidden" id="gradeErrorMsg">PLEASE SELECT A GRADE FOR EVERY SUBJECT.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-row">
+      <button class="btn btn-primary" id="calcBtn">Calculate &amp; Seal</button>
+    </div>
+
+    <!-- ============ FEATURE 6: RESULT ============ -->
+    <div class="card result-stage" id="resultStage">
+      <div class="stamp-wrap">
+        <div class="report-final-seal" aria-label="CGPA result seal">
+          <div class="seal-top">ARCHIVA · ACADEMIC LEDGER</div>
+          <div class="seal-label">CGPA</div>
+          <div class="seal-verified" aria-hidden="true">VERIFIED</div>
+          <div class="seal-score" id="cgpaValue">0.00</div>
+          <div class="seal-scale">OUT OF 10.00</div>
+          <div class="seal-bottom">SEALED RESULT · ARCHIVA</div>
+        </div>
+        <div class="cgpa-actions">
+          <button class="btn btn-secondary" id="viewReportBtn">View Complete Academic Report</button>
+        </div>
+      </div>
+
+      <div class="report-block" id="reportBlock">
+        <div class="report-section">
+          <h4>Student Information</h4>
+          <div class="info-grid" id="reportStudentInfo"></div>
+        </div>
+
+        <div id="reportSemesters"></div>
+
+        <div class="report-section">
+          <h4>Semester-wise Summary</h4>
+          <div id="reportSummaryTable"></div>
+        </div>
+
+        <div class="report-section" id="reportArrearsSection">
+          <h4>Arrear Details</h4>
+          <div id="reportArrears"></div>
+        </div>
+
+        <div class="report-section report-final-section" style="text-align:center; margin-top:30px;">
+          <div class="report-final-seal-wrap">
+            <div class="report-final-seal" aria-label="CGPA result seal">
+              <div class="seal-top">ARCHIVA · ACADEMIC LEDGER</div>
+              <div class="seal-label">CGPA</div>
+              <div class="seal-verified" aria-hidden="true">VERIFIED</div>
+              <div class="seal-score" id="reportOverallCgpa">0.00</div>
+              <div class="seal-scale">OUT OF 10.00</div>
+              <div class="seal-bottom">SEALED RESULT · ARCHIVA</div>
+            </div>
+          </div>
+        </div>
+        <div class="report-bottom-toggle-wrap">
+          <button class="btn btn-secondary report-bottom-toggle" id="bottomReportToggle" type="button">Hide Complete Academic Report</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="justify-content:center; margin-top: 26px;">
+        <div class="action-anchor">
+          <button class="btn btn-primary action-ledger-btn" id="downloadBtn" aria-label="Download">
+            <span class="action-icon action-icon-download" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg></span><span>DOWNLOAD</span>
+          </button>
+          <div class="action-panel" id="downloadPanel">
+            <button data-report="short">Academic Result PDF</button>
+            <button data-report="full">Complete Academic Report PDF</button>
+          </div>
+        </div>
+        <div class="action-anchor">
+          <button class="btn btn-secondary action-ledger-btn" id="shareBtn" aria-label="Share">
+            <span class="action-icon action-icon-share" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="18" cy="5" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m8 11 7.8-4.8M8 13l7.8 4.8"/></svg></span><span>SHARE</span>
+          </button>
+          <div class="action-panel" id="sharePanel">
+            <button id="shareCopy">Copy Result</button>
+            <button data-report="short" class="share-pdf">Academic Result PDF</button>
+            <button data-report="full" class="share-pdf">Complete Academic Report PDF</button>
+            <button id="shareTo">Share To…</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    © 2026 ARCHIVA · ACADEMIC LEDGER
+  </footer>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<div class="modal-backdrop" id="resetModal">
+  <div class="modal" data-tab="Reset">
+    <div class="modal-header"><h3>Reset all entered data?</h3><button class="close-x" data-close="resetModal">&times;</button></div>
+    <div class="modal-body">
+      <p style="color:var(--ink-muted); margin:0; font-size:13.5px;">Your current details, semester selections, grades and result will be cleared. This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="resetModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmReset">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="helpModal">
+  <div class="modal modal-lg" data-tab="Help">
+    <div class="modal-header"><h3>HOW TO USE</h3><button class="close-x" data-close="helpModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="help-sub">FILING YOUR RECORD</div>
+      <ol class="help-steps">
+        <li>ENTER YOUR STUDENT NAME AND ROLL NUMBER.</li>
+        <li>YOUR ACADEMIC DETAILS ARE KEPT READY FOR THE CALCULATION.</li>
+        <li>SELECT ONE OR MORE SEMESTER SHEETS — ANY COMBINATION, IN ANY ORDER.</li>
+        <li>MARK THE GRADE FOR EVERY SUBJECT IN THE ACTIVE SHEET.</li>
+        <li>SELECT <b>CALCULATE &amp; SEAL</b>.</li>
+        <li>YOUR CGPA IS STAMPED IMMEDIATELY.</li>
+        <li>SELECT <b>VIEW COMPLETE ACADEMIC REPORT</b> FOR THE FULL SUBJECT-WISE BREAKDOWN.</li>
+        <li>USE <b>DOWNLOAD</b> OR <b>SHARE</b> TO GET A PDF OR SHARE YOUR RESULT.</li>
+      </ol>
+      <div class="help-sub">VALIDATION</div>
+      <p style="color:var(--ink-muted); font-size:13px;">IF REQUIRED INFORMATION IS MISSING OR INCORRECT, A SMALL MESSAGE APPEARS BELOW THE RELEVANT FIELD. AFTER YOU CORRECT THAT FIELD, THE MESSAGE DISAPPEARS.</p>
+      <div class="help-sub">RESET</div>
+      <p style="color:var(--ink-muted); font-size:13px;">CLEARS THE CURRENT STUDENT DETAILS, SEMESTER SELECTIONS, GRADES AND RESULT AFTER CONFIRMATION.</p>
+      <div class="help-sub">THEME</div>
+      <p style="color:var(--ink-muted); font-size:13px;">SWITCH BETWEEN LIGHT MODE AND DARK MODE AT ANY TIME.</p>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" data-close="helpModal">CLOSE</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="aboutModal">
+  <div class="modal" data-tab="About">
+    <div class="modal-header"><h3>ABOUT</h3><button class="close-x" data-close="aboutModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="about-hero">
+        <h2>ARCHIVA</h2>
+        <p>RECORD YOUR GRADES. TRACK YOUR PROGRESS. KNOW YOUR CGPA.</p>
+      </div>
+
+      <div class="about-block">
+        <h4>PURPOSE</h4>
+        <p>ARCHIVA CALCULATES SEMESTER GPA AND CGPA USING THE GRADING FORMULA.</p>
+      </div>
+
+      <div class="about-block">
+        <h4>FEATURES</h4>
+        <p>SEMESTER-WISE GRADE ENTRY, AN INSTANT SEALED CGPA, A DETAILED ACADEMIC REPORT, ARREAR TRACKING, AND DOWNLOADABLE OR SHAREABLE PDF REPORTS WITH WATERMARK AND PAGE NUMBERING.</p>
+      </div>
+
+      <div class="about-block">
+        <h4>DATA &amp; PRIVACY</h4>
+        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON THIS DEVICE TO RECOVER AN UNFINISHED SESSION, AND ARE NEVER SENT TO A SERVER.</p>
+      </div>
+
+      <div class="about-block">
+        <h4>ACADEMIC DISCLAIMER</h4>
+        <p>ARCHIVA IS AN INDEPENDENT TOOL AND IS NOT AFFILIATED WITH ANNA UNIVERSITY. ALWAYS CONFIRM YOUR OFFICIAL CGPA AGAINST YOUR UNIVERSITY TRANSCRIPT.</p>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="privacyModal">
+  <div class="modal" data-tab="Privacy and Terms">
+    <div class="modal-header"><h3>PRIVACY &amp; TERMS</h3><button class="close-x" data-close="privacyModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="about-block privacy-copy">
+        <h4>PRIVACY</h4>
+        <p>ALL CALCULATIONS HAPPEN LOCALLY IN YOUR BROWSER. YOUR DETAILS ARE SAVED ONLY ON THIS DEVICE TO RECOVER AN UNFINISHED SESSION, AND ARE NEVER SENT TO A SERVER.</p>
+      </div>
+
+      <div class="about-block about-rights">
+        <h4>COPYRIGHT &amp; USE</h4>
+        <p>THE DESIGN, CONTENT, BRANDING, AND SOURCE CODE OF ARCHIVA ARE PROTECTED BY APPLICABLE COPYRIGHT AND INTELLECTUAL PROPERTY LAWS. COPYING, REPRODUCING, REPUBLISHING, MODIFYING, MIRRORING, OR OTHERWISE USING ANY PART OF THIS WEBSITE WITHOUT PRIOR WRITTEN PERMISSION IS NOT PERMITTED.</p>
+        <div class="about-rights-footer">© 2026 ARCHIVA · ALL RIGHTS RESERVED.</div>
+      </div>
+
+      <div class="about-block about-contact">
+        <h4>CONTACT</h4>
+        <div class="contact-line">
+          <span class="contact-copy">FOR WEBSITE-RELATED QUERIES:</span>
+          <a class="contact-email" id="contactEmailLink" href="mailto:NEOKRITUS%40GMAIL.COM?subject=WEBSITE%20QUERY%20-%20ARCHIVA" aria-label="Compose an email to NEOKRITUS at Gmail with the subject WEBSITE QUERY - ARCHIVA">
+            <span class="email-neo">NEOKRITUS</span><span class="email-at">@</span><span class="email-gmail">GMAIL.COM</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="pdfPreviewModal">
+  <div class="modal modal-lg" data-tab="Preview">
+    <div class="modal-header"><h3 id="pdfPreviewTitle">Preview</h3><button class="close-x" data-close="pdfPreviewModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="pdf-canvas-preview" id="pdfPreviewCanvasHost" aria-label="PDF preview"></div>
+      <iframe class="pdf-preview-frame" id="pdfPreviewFrame"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="pdfPreviewModal">Cancel</button>
+      <button class="btn btn-primary" id="pdfPreviewDownloadBtn">⬇ Download</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastText"></span></div>
+
+<!-- MOBILE ACTION PANEL FIX: DOWNLOAD/SHARE OPTION VISIBILITY ONLY -->
+<script src="script.js"></script>
+</body>
+</html>

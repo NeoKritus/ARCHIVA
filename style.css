@@ -1,0 +1,2493 @@
+/* ================================================================
+   ARCHIVA — "The Ledger"
+   A registrar's transcript, not a SaaS dashboard.
+   Paper + ruled lines + typewriter data + an ink-stamped result.
+   Type: Roboto Slab (stamped headings) / Work Sans (UI) / Courier Prime (data)
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap');
+
+:root{
+  --radius-s: 3px;
+  --radius-m: 5px;
+  --font-display: 'Roboto Slab', Georgia, serif;
+  --font-ui: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Courier Prime', ui-monospace, monospace;
+  --dur: 160ms;
+  --ease: cubic-bezier(.2,.7,.3,1);
+}
+
+/* -------- Light — "Day desk" (default) -------- */
+:root,
+[data-theme="light"]{
+  --paper: #e9ebe1;
+  --paper-2: #f2f3ec;
+  --card: #f4f5ee;
+  --card-border: #c7cab8;
+  --input-bg: #fbfbf6;
+  --ink: #1e2333;
+  --ink-soft: #454b3f;
+  --ink-muted: #6c715f;
+  --ink-faint: #9a9d8b;
+  --rule: #c3c6b3;
+  --stamp: #b23a2e;
+  --stamp-2: #8a2c22;
+  --pen: #2a4b8d;
+  --success: #2f6b3f;
+  --error: #a5271b;
+  --shadow: 0 1px 0 rgba(30,35,51,.04), 0 14px 30px -18px rgba(30,35,51,.28);
+  --grain-opacity: .05;
+  --paper-line: rgba(70,75,60,.08);
+}
+
+[data-theme="dark"]{
+  --paper: #17181a;
+  --paper-2: #1c1d1f;
+  --card: #1d1e20;
+  --card-border: #34362f;
+  --input-bg: #131415;
+  --ink: #e9e4d3;
+  --ink-soft: #cdc7ae;
+  --ink-muted: #999480;
+  --ink-faint: #6b6858;
+  --rule: #35362e;
+  --stamp: #e2574a;
+  --stamp-2: #ff7566;
+  --pen: #7ea1e8;
+  --success: #6fbf7f;
+  --error: #ff8577;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 18px 34px -18px rgba(0,0,0,.7);
+  --grain-opacity: .06;
+  --paper-line: rgba(230,225,205,.05);
+}
+
+*{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  background-image: repeating-linear-gradient(
+      to bottom, transparent, transparent 27px, var(--paper-line) 27px, var(--paper-line) 28px
+    );
+}
+
+/* -------- Grain / photocopy texture -------- */
+#grain{
+  position: fixed; inset:0; z-index: 500; pointer-events:none;
+  opacity: var(--grain-opacity); mix-blend-mode: multiply;
+}
+[data-theme="dark"] #grain{ mix-blend-mode: overlay; }
+
+#app{ position: relative; z-index: 1; min-height: 100%; }
+
+/* -------- Topbar -------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 22px clamp(16px,4vw,52px) 10px;
+}
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand .mark{
+  width:34px; height:34px; border-radius:50%;
+  border: 2px solid var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-display); font-weight:700; font-size:13px;
+  color: var(--ink); flex:none; transform: rotate(-6deg);
+}
+.brand span{ font-family: var(--font-display); font-weight:700; font-size:19px; letter-spacing:.01em; }
+.brand small{
+  display:block; font-family: var(--font-mono); font-weight:400;
+  font-size:10px; letter-spacing:.1em; color: var(--ink-faint); text-transform:uppercase; margin-top:2px;
+}
+.topbar-controls{ display:flex; align-items:center; gap:10px; }
+.icon-btn{
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--card); border: 1.5px solid var(--card-border);
+  color: var(--ink); cursor:pointer;
+  transition: all var(--dur) var(--ease);
+}
+.icon-btn:hover{ border-color: var(--ink); transform: rotate(-4deg); }
+.icon-btn svg{ width:17px; height:17px; }
+
+/* -------- Wrap / hero -------- */
+.wrap{ max-width: 880px; margin:0 auto; padding: 4px clamp(16px,4vw,52px) 90px; }
+.hero{ padding: 28px 6px 30px; }
+.hero .eyebrow{
+  font-family: var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color: var(--stamp); font-weight:700; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.hero .eyebrow::before{ content:""; width:22px; height:1.5px; background: var(--stamp); display:inline-block; }
+.hero h1{
+  font-family: var(--font-display); font-weight:700; font-size: clamp(28px,4.6vw,42px);
+  margin: 0 0 10px; letter-spacing:-0.01em; line-height:1.08;
+}
+.hero p{ color: var(--ink-muted); max-width: 480px; font-size:14.5px; }
+
+/* -------- Cards: "record cards" with punch holes -------- */
+.card{
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow);
+  padding: clamp(20px,3vw,30px) clamp(20px,3vw,30px) clamp(20px,3vw,30px) 46px;
+  margin-bottom: 22px;
+  position: relative;
+}
+.card::before{
+  /* punch holes down the left margin */
+  content:"";
+  position:absolute; left:16px; top:0; bottom:0; width:10px;
+  background-image: radial-gradient(circle, var(--paper) 3.5px, transparent 3.6px);
+  background-size: 10px 34px;
+  background-repeat: repeat-y;
+  background-position: 0 26px;
+  border-right: 1px dashed var(--rule);
+}
+.card-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px; gap:12px; flex-wrap:wrap; }
+.card-title{
+  font-family: var(--font-display); font-size:18px; font-weight:700; margin:0;
+  text-transform: uppercase; letter-spacing:.03em;
+}
+.card-sub{ color: var(--ink-faint); font-size:11.5px; font-family: var(--font-mono); }
+
+/* -------- Fields -------- */
+.field-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 20px 22px; }
+@media (max-width:640px){ .field-grid{ grid-template-columns: 1fr; } }
+.field label{
+  display:block; font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color: var(--ink-muted); margin-bottom:8px; font-family: var(--font-mono);
+}
+.field input, .field select{
+  width:100%; background: var(--input-bg);
+  border: none; border-bottom: 1.5px solid var(--rule);
+  color: var(--ink); border-radius:0; padding: 9px 4px 9px 2px;
+  font-family: var(--font-mono); font-size:14.5px; outline:none;
+  transition: border-color var(--dur) var(--ease);
+  appearance:none;
+}
+.field select{ font-family: var(--font-ui); cursor:pointer; }
+.field input::placeholder{ color: var(--ink-faint); }
+.field input:focus, .field select:focus{ border-bottom-color: var(--pen); }
+.field-error{ color: var(--error); font-size:12px; margin-top:6px; font-family: var(--font-mono); display:none; }
+.field.has-error input{ border-bottom-color: var(--error); }
+.field.has-error .field-error{ display:block; }
+.select-wrap{ position:relative; }
+.select-wrap::after{
+  content:""; position:absolute; right:4px; top:46%; width:7px; height:7px;
+  border-right:1.5px solid var(--ink-faint); border-bottom:1.5px solid var(--ink-faint);
+  transform: translateY(-50%) rotate(45deg); pointer-events:none;
+}
+
+/* -------- Semester folder tabs -------- */
+.sem-tabs{ display:flex; flex-wrap:wrap; gap:0; margin-bottom:0; border-bottom: 1.5px solid var(--ink); }
+.sem-tab{
+  font-family: var(--font-mono); font-size:12.5px; font-weight:700;
+  padding: 9px 16px 8px; cursor:pointer; user-select:none;
+  background: var(--paper-2); border: 1.5px solid var(--card-border); border-bottom:none;
+  border-radius: 6px 6px 0 0; margin-right:4px; margin-bottom:-1.5px;
+  color: var(--ink-muted); position:relative; top:1px;
+  display:flex; align-items:center; gap:6px;
+  transition: all var(--dur) var(--ease);
+}
+.sem-tab:hover{ color: var(--ink); }
+.sem-tab .dot{
+  width:7px; height:7px; border-radius:50%; border:1.3px solid var(--ink-faint); flex:none;
+}
+.sem-tab.selected .dot{ background: var(--success); border-color: var(--success); }
+.sem-tab.active{
+  background: var(--card); border-color: var(--ink); color: var(--ink);
+  border-bottom: 1.5px solid var(--card);
+}
+.sem-tab .gpa-tag{ font-size:10.5px; color: var(--ink-faint); }
+.sem-tab.active .gpa-tag{ color: var(--stamp); }
+
+.sem-panel{ border: 1.5px solid var(--ink); border-top:none; padding: 20px 4px 6px; }
+.sem-panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding:0 4px; }
+.sem-panel-head h3{ font-family: var(--font-display); font-size:15.5px; margin:0; font-weight:700; }
+
+table.subjects{ width:100%; border-collapse:collapse; font-size:13.5px; }
+table.subjects thead th{
+  text-align:left; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color: var(--ink-faint); font-weight:700; padding:8px 8px; border-bottom: 1.5px solid var(--ink);
+  font-family: var(--font-mono);
+}
+table.subjects td{ padding: 9px 8px; border-bottom: 1px dashed var(--rule); vertical-align:middle; }
+table.subjects tr:last-child td{ border-bottom:none; }
+table.subjects td.sno{ width:26px; height:26px; text-align:center; }
+table.subjects td.sno span{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:50%; border: 1.3px solid var(--stamp);
+  color: var(--stamp); font-family: var(--font-mono); font-size:11px; font-weight:700;
+}
+table.subjects td.code{ font-family: var(--font-mono); color: var(--ink-muted); white-space:nowrap; }
+table.subjects td.credit{ text-align:center; font-family: var(--font-mono); color: var(--ink-muted); }
+table.subjects select.grade-select{
+  width: 80px; padding: 6px 8px; font-size:12.5px; font-family: var(--font-mono);
+  background: var(--input-bg); border: 1.3px solid var(--rule); border-radius: var(--radius-s);
+  color: var(--ink);
+}
+table.subjects select.grade-select.arrear{ color: var(--error); border-color: var(--error); }
+table.subjects tr.grade-missing select.grade-select{ border-color: var(--error); box-shadow: 0 0 0 2px color-mix(in srgb, var(--error) 15%, transparent); }
+
+.grade-error{ color: var(--error); font-size:12px; margin: 10px 4px 0; font-family: var(--font-mono); }
+.sem-gpa-line{ font-family: var(--font-mono); font-size:12.5px; color: var(--ink-muted); }
+.sem-gpa-line b{ color: var(--stamp); }
+.sem-select-hint{ color: var(--stamp); font-size:11.5px; font-family: var(--font-mono); }
+
+/* -------- Buttons: form / stamp style -------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border-radius: var(--radius-s);
+  padding: 11px 22px;
+  font-family: var(--font-ui); font-weight:700; font-size:13px;
+  letter-spacing:.02em;
+  cursor:pointer; border: 1.5px solid var(--ink); background:transparent; color: var(--ink);
+  transition: all var(--dur) var(--ease);
+  text-transform: uppercase;
+}
+.btn-primary{ background: var(--ink); color: var(--paper); }
+.btn-primary:hover{ background: var(--stamp); border-color: var(--stamp); color:#fff; }
+.btn-secondary{ background: transparent; color: var(--ink); }
+.btn-secondary:hover{ border-color: var(--stamp); color: var(--stamp); }
+.btn-ghost{ border-color: transparent; color: var(--ink-muted); text-transform:none; font-weight:600; }
+.btn-ghost:hover{ color: var(--ink); }
+.btn-danger{ background: var(--error); color:#fff; border-color: var(--error); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn-block{ width:100%; }
+.btn-row{ display:flex; gap:12px; flex-wrap:wrap; }
+
+/* -------- Calculate row -------- */
+.calc-row{ display:flex; justify-content:center; margin: 26px 0 34px; }
+.calc-row .btn{ padding:14px 46px; font-size:13.5px; letter-spacing:.06em; }
+
+/* -------- Result: ink stamp -------- */
+.result-stage{ display:none; }
+.result-stage.show{ display:block; }
+
+.stamp-wrap{ display:flex; flex-direction:column; align-items:center; padding: 20px 12px 10px; }
+.stamp{
+  width: 210px; height:210px; border-radius:50%;
+  border: 3px solid var(--stamp);
+  outline: 1px solid var(--stamp);
+  outline-offset: 5px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  color: var(--stamp);
+  position: relative;
+  transform: rotate(-7deg);
+  animation: stampLand 420ms cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes stampLand{
+  0%{ transform: scale(1.5) rotate(-7deg); opacity:0; }
+  55%{ transform: scale(.94) rotate(-7deg); opacity:1; }
+  100%{ transform: scale(1) rotate(-7deg); }
+}
+.stamp .ring-text{ position:absolute; inset:0; font-family: var(--font-mono); font-size:10px; font-weight:700; letter-spacing:.1em; }
+.stamp-cgpa{ font-family: var(--font-display); font-weight:700; font-size:44px; line-height:1; }
+.stamp-label{ font-family: var(--font-mono); font-size:10px; letter-spacing:.15em; margin-top:4px; text-transform:uppercase; }
+.stamp-scale{ font-family: var(--font-mono); font-size:9.5px; color: var(--stamp); opacity:.75; margin-top:2px; }
+
+.cgpa-actions{ margin-top: 22px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+
+/* -------- Report -------- */
+.report-block{ display:none; }
+.report-block.show{ display:block; margin-top: 30px; }
+.report-section{ margin-bottom: 24px; }
+.report-section h4{
+  font-family: var(--font-display); font-size:14px; margin:0 0 10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.04em;
+  padding-bottom:8px; border-bottom: 1.5px solid var(--ink);
+}
+.info-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap: 12px 24px; font-size:13.5px; }
+.info-grid div span{ color: var(--ink-faint); display:block; font-size:10px; text-transform:uppercase; letter-spacing:.07em; font-family: var(--font-mono); margin-bottom:3px; }
+.info-grid div b{ font-family: var(--font-mono); font-weight:700; }
+table.report-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:4px; }
+table.report-table th{ text-align:left; padding:6px 8px; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); border-bottom: 1.5px solid var(--ink); font-family: var(--font-mono); }
+table.report-table td{ padding:7px 8px; border-bottom:1px dashed var(--rule); font-family: var(--font-mono); }
+table.report-table td.num{ text-align:center; }
+.arrear-empty{ color: var(--ink-faint); font-size:12.5px; font-style:italic; font-family: var(--font-mono); }
+
+/* -------- Action panels -------- */
+.action-panel{
+  display:none; position:absolute; z-index:30;
+  background: var(--card); border: 1.5px solid var(--ink);
+  border-radius: var(--radius-m); box-shadow: var(--shadow);
+  padding: 6px; min-width: 230px;
+}
+.action-panel.show{ display:block; }
+.action-panel button{
+  width:100%; text-align:left; padding: 10px 12px; border-radius: var(--radius-s);
+  background:transparent; border:none; color: var(--ink); font-size:12.5px; font-family: var(--font-ui); font-weight:600;
+  cursor:pointer; display:flex; align-items:center; gap:10px;
+}
+.action-panel button:hover{ background: var(--paper-2); color: var(--stamp); }
+.action-anchor{ position:relative; display:inline-block; }
+
+/* -------- Modal -------- */
+.modal-backdrop{
+  position:fixed; inset:0; background: rgba(20,20,15,.42);
+  display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+}
+.modal-backdrop.show{ display:flex; }
+.modal{
+  background: var(--card); border: 1.5px solid var(--ink); border-radius: var(--radius-m);
+  max-width: 620px; width:100%; max-height:86vh; overflow:auto;
+  box-shadow: var(--shadow);
+  animation: modalIn 200ms var(--ease);
+  position: relative;
+  margin-top: 14px;
+}
+.modal::before{
+  content: attr(data-tab);
+  position:absolute; top:-14px; left:24px;
+  background: var(--stamp); color:#fff;
+  font-family: var(--font-mono); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding: 4px 10px; border-radius: 3px 3px 0 0;
+}
+.modal.modal-lg{ max-width: 760px; }
+@keyframes modalIn{ from{ opacity:0; transform: translateY(8px);} to{ opacity:1; transform:none; } }
+.modal-header{ display:flex; align-items:center; justify-content:space-between; padding: 20px 22px 14px; border-bottom: 1.5px dashed var(--rule); position:sticky; top:0; background:var(--card); }
+.modal-header h3{ font-family: var(--font-display); font-size:17px; margin:0; text-transform:uppercase; letter-spacing:.02em; }
+.modal-body{ padding: 20px 22px; }
+.modal-footer{ padding: 16px 22px; border-top: 1.5px dashed var(--rule); display:flex; justify-content:flex-end; gap:10px; }
+.close-x{ background:none; border:none; color: var(--ink-muted); font-size:20px; cursor:pointer; line-height:1; padding:4px; }
+.close-x:hover{ color: var(--stamp); }
+
+/* -------- Hamburger menu -------- */
+.menu-panel{ min-width: 200px; }
+.menu-panel button{ font-size:12.5px; padding: 11px 14px; text-transform:uppercase; letter-spacing:.03em; }
+.menu-panel .menu-row-theme{ display:flex; align-items:center; justify-content:space-between; padding: 9px 14px 11px; }
+.menu-panel .menu-row-theme span{ font-size:11px; font-family: var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color: var(--ink-muted); }
+.theme-switch{
+  width: 40px; height: 22px; border-radius: 3px; background: var(--input-bg);
+  border: 1.5px solid var(--ink); position:relative; cursor:pointer;
+}
+.theme-switch .knob{
+  position:absolute; top:1px; left:1px; width:16px; height:16px; border-radius:2px;
+  background: var(--stamp); transition: transform var(--dur) var(--ease);
+}
+[data-theme="dark"] .theme-switch .knob{ transform: translateX(18px); }
+
+/* -------- Help / About -------- */
+.help-steps{ counter-reset: step; list-style:none; padding:0; margin:0 0 18px; }
+.help-steps li{ counter-increment: step; position:relative; padding: 7px 0 7px 32px; font-size:13px; color: var(--ink-muted); }
+.help-steps li::before{
+  content: counter(step); position:absolute; left:0; top:5px; width:20px; height:20px; border-radius:50%;
+  border: 1.3px solid var(--stamp); color: var(--stamp);
+  display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; font-family: var(--font-mono);
+}
+.help-sub{ margin: 16px 0 8px; font-family: var(--font-display); font-size:13.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+
+.about-hero{ text-align:center; margin-bottom: 18px; }
+.about-hero .mark-lg{
+  width:44px; height:44px; border-radius:50%; margin:0 auto 12px;
+  border: 2px solid var(--stamp); display:flex; align-items:center; justify-content:center;
+  transform: rotate(-6deg); color: var(--stamp); font-family: var(--font-display); font-weight:700;
+}
+.about-hero h2{ font-family: var(--font-display); margin:0 0 6px; font-size:20px; text-transform:uppercase; }
+.about-hero p{ color: var(--ink-muted); font-size:13px; margin:0; }
+.about-block{ margin-bottom: 15px; }
+.about-block h4{ font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color: var(--ink-faint); margin:0 0 5px; font-family: var(--font-mono); }
+.about-block p{ font-size:13px; color: var(--ink-muted); line-height:1.6; }
+
+/* -------- Toast -------- */
+.toast{
+  position: fixed; bottom: 24px; left:50%; transform: translateX(-50%) translateY(10px);
+  background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink);
+  padding: 11px 18px; border-radius: var(--radius-s); box-shadow: var(--shadow);
+  font-size:12.5px; font-family: var(--font-mono); z-index:200; opacity:0; pointer-events:none;
+  transition: all 200ms var(--ease); display:flex; align-items:center; gap:9px;
+}
+.toast.show{ opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
+.toast .dot{ width:6px; height:6px; border-radius:50%; background: var(--stamp); flex:none; }
+
+/* -------- Recovery banner -------- */
+.recover-banner{
+  display:none; align-items:center; justify-content:space-between; gap:12px;
+  background: var(--card); border: 1.5px dashed var(--stamp);
+  border-radius: var(--radius-m); padding: 12px 16px; margin-bottom:18px; font-size:12.5px;
+  font-family: var(--font-mono);
+}
+.recover-banner.show{ display:flex; }
+.recover-banner .btn{ padding:7px 14px; font-size:11px; }
+
+/* -------- PDF preview -------- */
+.pdf-preview-frame{ width:100%; height:60vh; border: 1.5px solid var(--ink); border-radius: var(--radius-s); background:#333; }
+
+footer.site-footer{ text-align:center; padding: 30px 20px 50px; color: var(--ink-faint); font-size:11.5px; font-family: var(--font-mono); }
+
+.hidden{ display:none !important; }
+
+@media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; transition-duration:.001ms !important; } }
+
+
+/* -------- Semester workspace: vertical side navigation -------- */
+.semester-workspace{display:grid;grid-template-columns:170px minmax(0,1fr);gap:0;border:1.5px solid var(--ink);}
+.semester-sidebar{background:var(--paper-2);border-right:1.5px solid var(--ink);padding:14px 10px;}
+.semester-sidebar-label{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);padding:4px 8px 10px;}
+.sem-tabs{display:flex;flex-direction:column;flex-wrap:nowrap;border-bottom:none;gap:3px;}
+.sem-tab{width:100%;margin:0;border:1px solid transparent;border-radius:var(--radius-s);padding:11px 10px;background:transparent;top:0;}
+.sem-tab.active{border:1.5px solid var(--ink);background:var(--card);}
+.sem-panel{border:none;padding:20px 18px 8px;min-width:0;}
+.ledger-barcode{display:inline-block;width:74px;height:15px;margin-right:10px;vertical-align:middle;opacity:.8;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 13px);}
+@media(max-width:720px){.semester-workspace{grid-template-columns:1fr}.semester-sidebar{border-right:none;border-bottom:none}.sem-tabs{display:grid;grid-template-columns:repeat(2,1fr)}}
+
+/* -------- Change set 1: requested UI refinements -------- */
+.semester-workspace{grid-template-columns:150px minmax(0,1fr);border:none;}
+.semester-sidebar{border-right:none;padding:8px 6px;background:transparent;}
+.semester-sidebar-label{padding:2px 6px 7px;font-size:9.5px;letter-spacing:.10em;white-space:nowrap;}
+.sem-tabs{gap:2px;}
+.sem-tab{padding:9px 8px;}
+.ledger-barcode{width:58px;height:14px;margin:0 8px;vertical-align:middle;}
+
+
+/* -------- Change set 2: final UI refinements -------- */
+.brand small{display:flex;align-items:center;gap:7px;}
+.ledger-dot{font-size:9px;color:var(--stamp);line-height:1;transform:translateY(-.5px);}
+.form-code-line{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.form-code-line .ledger-barcode{margin:0 2px;width:56px;height:13px;opacity:.78;}
+.form-accent-lines{display:inline-flex;align-items:center;gap:3px;margin-right:1px;}
+.form-accent-lines i{display:block;width:13px;height:2px;background:var(--stamp);border-radius:2px;}
+.form-accent-lines-right{margin-left:1px;margin-right:0;}
+.menu-panel{border:1.5px solid var(--ink);box-shadow:var(--shadow);padding:5px;background:var(--card);}
+.menu-panel button{border-radius:var(--radius-s);font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;}
+.menu-panel button:hover{background:var(--paper-2);}
+.menu-panel .menu-row-theme{margin:2px 2px 4px;border-bottom:1px dashed var(--rule);}
+.site-footer{border-top:1px solid var(--rule);margin-top:6px;letter-spacing:.04em;}
+@media(max-width:520px){.form-code-line{gap:5px}.form-code-line .ledger-barcode{width:44px}.form-accent-lines i{width:9px}.brand small{gap:5px;}}
+
+
+/* -------- Change set 3: requested UI refinements -------- */
+.hero .eyebrow.form-code-line{
+  justify-content:flex-start;
+  flex-wrap:nowrap;
+  gap:7px;
+  width:max-content;
+  max-width:100%;
+}
+.hero .eyebrow.form-code-line::before{ display:none; }
+.form-code-line .form-single-line{
+  display:inline-block;
+  width:18px;
+  height:2px;
+  flex:0 0 auto;
+  background:var(--stamp);
+  border-radius:2px;
+}
+.form-code-line .ledger-barcode{
+  width:56px;
+  height:13px;
+  margin:0 1px;
+  opacity:.78;
+}
+.hero h1,
+.hero p{ text-transform:uppercase; }
+.hero p{ max-width:640px; font-family:var(--font-mono); font-size:12px; letter-spacing:.035em; line-height:1.7; }
+.site-footer{ text-transform:uppercase; letter-spacing:.09em; }
+@media(max-width:520px){
+  .hero .eyebrow.form-code-line{gap:5px;}
+  .form-code-line .ledger-barcode{width:42px;}
+  .form-code-line .form-single-line{width:13px;}
+}
+
+
+
+/* ================================================================
+   RESPONSIVE FINAL PASS — device / zoom / split-screen safe
+   The layout responds to the available viewport and container width,
+   not to a particular phone, PC or device model.
+   ================================================================ */
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+html,body{ width:100%; max-width:100%; overflow-x:hidden; }
+body{ min-width:0; }
+#app{ min-width:0; container-type:inline-size; }
+.wrap{ width:min(100%,880px); min-width:0; }
+.topbar,.wrap,.card,.semester-workspace,.semester-sidebar,.sem-panel,.semTableWrap{ min-width:0; }
+.action-anchor{ min-width:0; }
+.topbar-controls{ flex:none; }
+.icon-btn{ touch-action:manipulation; }
+
+/* Keep panels inside the usable screen on every viewport size. */
+.action-panel{ max-width:min(92vw,360px); max-height:min(70dvh,520px); overflow:auto; }
+.menu-panel{ width:min(92vw,280px); }
+#downloadPanel,#sharePanel{ right:0; left:auto; }
+
+/* Dynamic compact state: also changes when browser zoom or split-screen changes width. */
+#app[data-layout="compact"] .topbar{ padding-top:16px; padding-bottom:8px; }
+#app[data-layout="compact"] .brand{ gap:9px; min-width:0; }
+#app[data-layout="compact"] .brand .mark{ width:30px; height:30px; }
+#app[data-layout="compact"] .brand>span{ min-width:0; }
+#app[data-layout="compact"] .brand>span:first-of-type{ font-size:16px; }
+#app[data-layout="compact"] .brand small{ font-size:8.5px; letter-spacing:.07em; white-space:normal; }
+#app[data-layout="compact"] .topbar-controls{ gap:7px; }
+#app[data-layout="compact"] .icon-btn{ width:40px; height:40px; }
+#app[data-layout="compact"] .hero{ padding:20px 0 24px; }
+#app[data-layout="compact"] .hero h1{ font-size:clamp(25px,8vw,34px); }
+#app[data-layout="compact"] .hero p{ max-width:100%; font-size:11px; line-height:1.65; }
+#app[data-layout="compact"] .form-code-line{ max-width:100%; overflow:hidden; }
+#app[data-layout="compact"] .form-code-line .ledger-barcode{ width:clamp(28px,12vw,52px); flex:0 1 52px; }
+#app[data-layout="compact"] .card{ padding:20px 14px 20px 34px; }
+#app[data-layout="compact"] .card::before{ left:10px; }
+#app[data-layout="compact"] .semester-workspace{ grid-template-columns:1fr; }
+#app[data-layout="compact"] .semester-sidebar{ padding:8px 0 10px; }
+#app[data-layout="compact"] .semester-sidebar-label{ padding-left:0; }
+#app[data-layout="compact"] .sem-tabs{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+#app[data-layout="compact"] .sem-tab{ min-height:44px; padding:8px; white-space:normal; }
+#app[data-layout="compact"] .sem-panel{ padding:16px 0 4px; }
+#app[data-layout="compact"] .sem-panel-head{ align-items:flex-start; }
+#app[data-layout="compact"] .semTableWrap{ overflow-x:auto; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
+#app[data-layout="compact"] table.subjects{ min-width:620px; }
+#app[data-layout="compact"] .semTableWrap::after{ content:"SWIPE TABLE ↔"; display:block; width:max-content; margin:7px 4px 0 auto; font:700 9px var(--font-mono); letter-spacing:.08em; color:var(--ink-faint); }
+#app[data-layout="compact"] .info-grid{ grid-template-columns:1fr; gap:10px; }
+#app[data-layout="compact"] .btn-row,#app[data-layout="compact"] .cgpa-actions{ align-items:stretch; }
+#app[data-layout="compact"] .btn-row .btn,#app[data-layout="compact"] .cgpa-actions .btn{ min-height:46px; }
+
+#app[data-layout="tiny"] .topbar{ align-items:flex-start; }
+#app[data-layout="tiny"] .brand span:first-of-type{ font-size:15px; }
+#app[data-layout="tiny"] .brand small{ max-width:170px; }
+#app[data-layout="tiny"] .wrap{ padding-left:12px; padding-right:12px; }
+#app[data-layout="tiny"] .hero h1{ font-size:25px; }
+#app[data-layout="tiny"] .form-code-line{ gap:4px; }
+#app[data-layout="tiny"] .form-code-line .form-single-line{ width:10px; }
+#app[data-layout="tiny"] .form-code-line .ledger-barcode{ width:30px; height:12px; }
+#app[data-layout="tiny"] .stamp{ width:170px; height:170px; }
+#app[data-layout="tiny"] .stamp-cgpa{ font-size:38px; }
+
+/* Modal behavior follows the live available viewport. */
+.modal-backdrop{
+  padding:max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  min-height:100dvh;
+}
+.modal{
+  width:min(100%,760px);
+  max-height:calc(100dvh - 24px);
+  margin:0;
+  overscroll-behavior:contain;
+}
+.modal.modal-lg{ width:min(100%,760px); }
+.modal-header{ padding:16px 18px 12px; }
+.modal-body{ padding:16px 18px; }
+.modal-footer{ padding:12px 18px; flex-wrap:wrap; }
+.pdf-preview-frame{ height:min(64dvh,720px); }
+
+@container (max-width: 760px){
+  .topbar{ padding-left:16px; padding-right:16px; }
+  .wrap{ padding-left:16px; padding-right:16px; }
+}
+@container (max-width: 520px){
+  .card-head{ align-items:flex-start; }
+  .card-sub{ font-size:10px; }
+  .calc-row .btn{ width:100%; padding-left:16px; padding-right:16px; }
+  .modal-header h3{ font-size:15px; }
+  .modal-body{ font-size:13px; }
+  .modal-footer .btn{ flex:1 1 140px; min-height:44px; }
+  #downloadPanel,#sharePanel{ position:fixed; left:12px; right:12px; bottom:max(12px, env(safe-area-inset-bottom)); top:auto; width:auto; max-width:none; z-index:120; }
+  #downloadPanel button,#sharePanel button{ min-height:46px; }
+}
+
+/* Better focus and accessibility for touch, keyboard and zoom users. */
+button:focus-visible,select:focus-visible,input:focus-visible,.theme-switch:focus-visible{
+  outline:2px solid var(--stamp); outline-offset:3px;
+}
+.theme-switch{ touch-action:manipulation; }
+body.modal-open{ overflow:hidden; }
+
+
+/* ================================================================
+   CHANGE SET 4 — CORE INTERACTION + TRUE RESPONSIVE PASS
+   ================================================================ */
+
+/* Use available desktop space instead of keeping the whole application
+   visually small on large/full-screen displays. */
+.wrap{
+  width:100%;
+  max-width:1180px;
+  padding-left:clamp(16px,3vw,48px);
+  padding-right:clamp(16px,3vw,48px);
+}
+@media (min-width:1500px){
+  .wrap{ max-width:1320px; }
+  .hero{ padding-top:36px; padding-bottom:34px; }
+  .card{ margin-bottom:26px; }
+}
+
+/* Prevent the application from becoming clipped at any browser zoom. */
+#app, .wrap, .card, .semester-workspace, .semester-sidebar, .sem-panel,
+.semTableWrap, .topbar, .topbar-controls, .action-anchor{
+  min-width:0;
+}
+
+/* About/Help body text should stay readable rather than being forced to caps. */
+#helpModal .modal-body, #aboutModal .modal-body{
+  text-transform:none;
+  letter-spacing:normal;
+}
+
+/* Mobile subject sheet: stack each row cleanly instead of cutting a wide table. */
+@media (max-width:560px){
+  #app[data-layout="compact"] .semTableWrap{ overflow:visible; }
+  #app[data-layout="compact"] table.subjects{
+    min-width:0;
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 8px;
+  }
+  #app[data-layout="compact"] table.subjects thead{ display:none; }
+  #app[data-layout="compact"] table.subjects,
+  #app[data-layout="compact"] table.subjects tbody,
+  #app[data-layout="compact"] table.subjects tr,
+  #app[data-layout="compact"] table.subjects td{
+    display:block;
+    width:100%;
+  }
+  #app[data-layout="compact"] table.subjects tr{
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:10px 12px;
+    background:var(--input-bg);
+  }
+  #app[data-layout="compact"] table.subjects td{
+    border:none;
+    padding:6px 0;
+    display:grid;
+    grid-template-columns:92px minmax(0,1fr);
+    gap:10px;
+    align-items:center;
+    text-align:left;
+  }
+  #app[data-layout="compact"] table.subjects td::before{
+    content:attr(data-label);
+    color:var(--ink-faint);
+    font:700 9px var(--font-mono);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  #app[data-layout="compact"] table.subjects td:nth-child(1){ display:none; }
+  #app[data-layout="compact"] table.subjects td:nth-child(3){ line-height:1.4; }
+  #app[data-layout="compact"] table.subjects td:nth-child(5){
+    grid-template-columns:92px minmax(120px,1fr);
+  }
+  #app[data-layout="compact"] table.subjects select.grade-select{
+    min-height:42px;
+    width:100%;
+  }
+  #app[data-layout="compact"] .semTableWrap::after{ display:none; }
+}
+
+/* Full-screen modal behavior and safe-area support. */
+.modal-backdrop{ min-height:100vh; min-height:100dvh; }
+.modal{ max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); }
+
+
+/* ===== CHANGE SET 4: INPUT + WARNING FIXES ===== */
+.grade-error, .field-error, .sem-select-hint, #toastText { text-transform: uppercase; }
+#studentName { ime-mode: auto; }
+#studentName:focus { caret-color: var(--stamp); }
+
+/* ================================================================
+   GLOBAL DISPLAY CAPITALIZATION
+   ================================================================ */
+body { text-transform: uppercase; }
+input, select, textarea, button { text-transform: uppercase; }
+
+/* ===== FINAL LEDGER UI REFINEMENT ===== */
+.brand .mark,.mark-lg{display:none!important;}
+.hero .hero-single-line{
+  white-space:nowrap!important;
+  max-width:none!important;
+  width:auto!important;
+  overflow:visible!important;
+  font-size:clamp(7px,0.82vw,12px)!important;
+  line-height:1.4!important;
+  letter-spacing:.045em!important;
+}
+.hero p.hero-single-line{margin-bottom:0;}
+#helpModal .modal-body,
+#helpModal .modal-body *{text-transform:uppercase;}
+#helpModal .modal-body{letter-spacing:.035em;}
+#helpModal .help-steps li{line-height:1.55;}
+#fieldReg{display:none!important;}
+.ledger-cgpa-card{
+  width:min(100%,390px);
+  border:2px solid var(--stamp);
+  background:var(--card);
+  box-shadow:inset 0 0 0 5px var(--paper), inset 0 0 0 6px var(--stamp), var(--shadow);
+  position:relative;
+  text-align:center;
+  transform:none!important;
+  animation:ledgerResultIn .38s var(--ease);
+}
+.ledger-cgpa-card::before,.ledger-cgpa-card::after{
+  content:"";position:absolute;left:10px;right:10px;height:1px;background:var(--rule);
+}
+.ledger-cgpa-card::before{top:42px}.ledger-cgpa-card::after{bottom:36px}
+.ledger-cgpa-top,.ledger-cgpa-bottom{
+  min-height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  font:700 9px var(--font-mono);letter-spacing:.12em;color:var(--ink-faint);
+}
+.ledger-cgpa-main{padding:22px 18px 20px;}
+.ledger-cgpa-main .stamp-cgpa{font-size:clamp(48px,7vw,74px);color:var(--stamp);letter-spacing:-.03em;}
+.ledger-cgpa-main .stamp-label{color:var(--stamp);font-size:11px;margin:8px 0 5px;}
+.ledger-cgpa-main .stamp-scale{font-size:10px;color:var(--ink-muted);}
+.report-cgpa-ledger{
+  display:inline-block;min-width:220px;padding:12px 22px;border-top:2px solid var(--stamp);border-bottom:2px solid var(--stamp);
+  font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--stamp);letter-spacing:.04em;
+}
+.site-footer{white-space:normal;}
+@media(max-width:720px){
+  .hero .hero-single-line{font-size:clamp(6px,2.1vw,10px)!important;letter-spacing:.025em!important;}
+  .ledger-cgpa-card{width:min(100%,340px);}
+  .ledger-cgpa-top,.ledger-cgpa-bottom{padding:0 12px;font-size:8px;}
+}
+
+
+/* ================================================================
+   FINAL REQUESTED UI REFINEMENT
+   CAPS + SINGLE-LINE HERO + LEDGER ACTIONS + NO LOGO
+   ================================================================ */
+
+/* Display all website UI text in capitals, including dynamic controls. */
+#app, #app *, .modal-backdrop, .modal-backdrop * {
+  text-transform: uppercase !important;
+}
+input::placeholder, textarea::placeholder {
+  text-transform: uppercase !important;
+}
+
+/* Remove the decorative A/logo everywhere. */
+.brand .mark,
+.mark-lg,
+.brand-mark,
+.logo,
+.logo-mark {
+  display: none !important;
+}
+
+/* Keep the existing ARCHIVA wordmark clean after logo removal. */
+.brand {
+  align-items: flex-start;
+}
+.brand > span {
+  padding-top: 1px;
+}
+
+/* HERO DESCRIPTION: always remain a single line on desktop/maximized views.
+   On genuinely narrow screens it may scroll within its own line instead of
+   becoming tiny or breaking into a second line. */
+.hero .hero-single-line {
+  display: block !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+  max-width: none !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none;
+  font-size: clamp(9px, 0.72vw, 12px) !important;
+  line-height: 1.45 !important;
+  letter-spacing: .055em !important;
+}
+.hero .hero-single-line::-webkit-scrollbar { display: none; }
+
+/* Preserve the requested one-line behavior when maximized. */
+@media (min-width: 900px) {
+  .hero .hero-single-line {
+    font-size: clamp(10px, 0.72vw, 12px) !important;
+    overflow: visible !important;
+  }
+}
+
+/* CALCULATE & SEAL: ledger-style aesthetic without changing functionality. */
+.calc-row {
+  margin-top: 22px !important;
+  margin-bottom: 26px !important;
+}
+#calcBtn {
+  position: relative;
+  min-width: min(100%, 300px);
+  min-height: 52px;
+  padding: 0 30px !important;
+  border: 1px solid var(--stamp) !important;
+  border-radius: 0 !important;
+  letter-spacing: .13em !important;
+  font-family: var(--font-mono) !important;
+  box-shadow:
+    inset 0 0 0 4px var(--card),
+    inset 0 0 0 5px color-mix(in srgb, var(--stamp) 38%, transparent),
+    0 7px 18px rgba(0,0,0,.12) !important;
+}
+#calcBtn::before,
+#calcBtn::after {
+  content: "—";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-52%);
+  color: var(--paper);
+  opacity: .9;
+  font-size: 16px;
+  font-weight: 700;
+}
+#calcBtn::before { left: 14px; }
+#calcBtn::after  { right: 14px; }
+#calcBtn:hover,
+#calcBtn:focus-visible {
+  transform: translateY(-1px);
+}
+
+/* DOWNLOAD / SHARE: compact academic-ledger action styling. */
+.action-anchor > .btn {
+  border-radius: 0 !important;
+  letter-spacing: .08em;
+}
+.action-panel {
+  border-radius: 0 !important;
+  border: 1px solid var(--rule) !important;
+  box-shadow: var(--shadow) !important;
+  padding: 7px !important;
+}
+.action-panel button {
+  border-radius: 0 !important;
+  letter-spacing: .05em !important;
+}
+
+/* ABOUT: no logo and no Regulation 2023 wording. */
+#aboutModal .about-hero {
+  text-align: left;
+  margin-bottom: 18px;
+}
+#aboutModal .about-hero h2 {
+  margin-top: 0;
+}
+
+/* Modal and utility text remain fully capitalized and ledger-consistent. */
+.modal-header h3,
+.modal-footer,
+.menu-panel,
+.action-panel,
+.toast {
+  letter-spacing: .035em;
+}
+
+
+/* DOWNLOAD / SHARE ICON REFINEMENT — CUSTOM LEDGER MARKS. */
+.result-stage .action-ledger-btn{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+}
+.result-stage .action-icon{
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+}
+.result-stage .action-icon svg{
+  width:18px;
+  height:18px;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.result-stage .action-icon-share svg circle{ fill:var(--paper); }
+.result-stage #shareBtn:hover .action-icon-share svg circle{ fill:var(--card); }
+
+/* ================================================================
+   CHANGE SET 8 — ABOUT / REGULATION / VALIDATION / LEDGER POLISH
+   ================================================================ */
+
+/* RECORD CARD: REGULATION MUST REMAIN AVAILABLE. */
+#fieldReg,
+#fieldReg[aria-hidden="true"] {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+/* ABOUT keeps its original structure and ARCHIVA mark. */
+#aboutModal .mark-lg{
+  display:flex !important;
+  margin:0 auto 14px !important;
+}
+#aboutModal .about-hero{
+  text-align:center !important;
+}
+#aboutModal .about-hero h2{
+  margin:0 0 10px !important;
+}
+#aboutModal .about-hero p{
+  margin:0 0 24px !important;
+}
+#aboutModal .about-footer{
+  text-align:center;
+  margin-top:26px;
+  color:var(--ink-faint);
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.1em;
+}
+
+/* Keep the site footer exactly as it already is. */
+.site-footer{
+  display:block !important;
+  white-space:normal !important;
+}
+
+/* DOWNLOAD + SHARE: more aesthetic ledger action controls. */
+.result-stage .btn-row{
+  position:relative;
+  padding:18px 14px;
+  gap:14px !important;
+}
+.result-stage .btn-row::before,
+.result-stage .btn-row::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:min(12vw,110px);
+  height:1px;
+  background:var(--rule);
+}
+.result-stage .btn-row::before{left:0;}
+.result-stage .btn-row::after{right:0;}
+
+.result-stage .action-anchor > .btn{
+  min-width:154px;
+  min-height:46px;
+  border-radius:0 !important;
+  position:relative;
+  font-family:var(--font-mono) !important;
+  font-size:11px !important;
+  letter-spacing:.12em !important;
+}
+.result-stage .action-anchor > .btn::before,
+.result-stage .action-anchor > .btn::after{
+  content:"";
+  position:absolute;
+  top:8px;
+  bottom:8px;
+  width:2px;
+  background:var(--stamp);
+  opacity:.9;
+}
+.result-stage .action-anchor > .btn::before{left:8px;}
+.result-stage .action-anchor > .btn::after{right:8px;}
+.result-stage #downloadBtn{
+  box-shadow:inset 0 0 0 1px var(--paper), inset 0 0 0 2px var(--stamp);
+}
+.result-stage #shareBtn{
+  box-shadow:inset 0 0 0 1px var(--card), inset 0 0 0 2px var(--rule);
+}
+.action-panel{
+  border-radius:0 !important;
+  border:1px solid var(--rule) !important;
+  padding:8px !important;
+  box-shadow:var(--shadow) !important;
+}
+.action-panel button{
+  border-radius:0 !important;
+  border-left:2px solid var(--stamp) !important;
+  padding-left:13px !important;
+}
+
+/* VERIFIED CGPA: refined academic-ledger record design. */
+.ledger-cgpa-card{
+  width:min(100%,430px) !important;
+  border:1px solid var(--stamp) !important;
+  box-shadow:
+    inset 0 0 0 5px var(--card),
+    inset 0 0 0 6px var(--rule),
+    var(--shadow) !important;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 41px,
+      color-mix(in srgb, var(--rule) 60%, transparent) 42px
+    ),
+    var(--card) !important;
+}
+.ledger-cgpa-top,
+.ledger-cgpa-bottom{
+  min-height:44px !important;
+  border-bottom:1px solid var(--rule);
+}
+.ledger-cgpa-bottom{
+  border-top:1px solid var(--rule);
+  border-bottom:0;
+}
+.ledger-cgpa-main{
+  padding:28px 20px 24px !important;
+}
+.ledger-cgpa-main .stamp-label{
+  display:inline-block;
+  padding:5px 11px;
+  border-left:1px solid var(--stamp);
+  border-right:1px solid var(--stamp);
+  letter-spacing:.16em !important;
+}
+.ledger-cgpa-main .stamp-cgpa{
+  margin-top:12px;
+  text-shadow:1px 1px 0 color-mix(in srgb, var(--stamp) 18%, transparent);
+}
+.ledger-cgpa-main .stamp-scale{
+  display:inline-block;
+  margin-top:9px !important;
+  padding-top:6px;
+  border-top:1px dashed var(--rule);
+  min-width:160px;
+}
+
+/* Small screens keep the action controls usable. */
+@media(max-width:560px){
+  .result-stage .btn-row{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .result-stage .action-anchor{
+    width:100%;
+  }
+  .result-stage .action-anchor > .btn{
+    width:100%;
+  }
+  .result-stage .btn-row::before,
+  .result-stage .btn-row::after{
+    display:none;
+  }
+}
+
+
+
+/* ===== FINAL SEAL RESULT REFINEMENT =====
+   Top theme icon removed; theme remains inside the three-bar menu.
+   CGPA result uses a physical stamp/seal treatment while remaining responsive. */
+.ledger-cgpa-card{
+  width:clamp(250px, 42vw, 360px) !important;
+  aspect-ratio:1 / 1 !important;
+  min-height:0 !important;
+  border:2px solid var(--stamp) !important;
+  border-radius:50% !important;
+  overflow:hidden;
+  display:flex !important;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:var(--card) !important;
+  box-shadow:
+    0 0 0 7px var(--card),
+    0 0 0 9px var(--stamp),
+    inset 0 0 0 7px var(--card),
+    inset 0 0 0 8px color-mix(in srgb, var(--stamp) 75%, transparent),
+    var(--shadow) !important;
+}
+.ledger-cgpa-card::before,
+.ledger-cgpa-card::after{
+  display:none !important;
+}
+.ledger-cgpa-top,
+.ledger-cgpa-bottom{
+  position:static !important;
+  min-height:auto !important;
+  width:100%;
+  border:0 !important;
+  padding:0 !important;
+  justify-content:center !important;
+  gap:8px;
+  font-size:8px !important;
+  letter-spacing:.14em !important;
+}
+.ledger-cgpa-top span:first-child::after{
+  content:" · ";
+}
+.ledger-cgpa-bottom{
+  margin-top:4px;
+  color:var(--stamp) !important;
+}
+.ledger-cgpa-bottom span:first-child::after{
+  content:" · ";
+}
+.ledger-cgpa-main{
+  padding:10px 18px 8px !important;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.ledger-cgpa-main .stamp-label{
+  border:0 !important;
+  padding:0 !important;
+  margin:4px 0 2px !important;
+  font-size:11px !important;
+  letter-spacing:.22em !important;
+}
+.ledger-cgpa-main .stamp-cgpa{
+  margin:4px 0 2px !important;
+  font-size:clamp(54px, 9vw, 78px) !important;
+  line-height:.95 !important;
+  color:var(--stamp) !important;
+  text-shadow:none !important;
+}
+.ledger-cgpa-main .stamp-scale{
+  min-width:0 !important;
+  border-top:1px dashed var(--stamp) !important;
+  margin-top:7px !important;
+  padding:7px 18px 0 !important;
+  color:var(--stamp) !important;
+  letter-spacing:.12em;
+}
+@media(max-width:560px){
+  .ledger-cgpa-card{width:min(78vw,320px) !important;}
+  .ledger-cgpa-main .stamp-cgpa{font-size:clamp(50px,18vw,68px) !important;}
+  .ledger-cgpa-top,.ledger-cgpa-bottom{font-size:7px !important;}
+}
+
+
+
+/* ===== CHANGE SET 9 — MENU ICONS / UPPERCASE PDF / ANGLED SEAL ===== */
+/* Aesthetic ledger icons for the three-bar menu actions. */
+.menu-panel .menu-action{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  text-align:left !important;
+}
+.menu-panel .menu-action .menu-icon{
+  width:26px;
+  height:26px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 26px;
+  color:var(--stamp);
+  border:1px solid color-mix(in srgb, var(--stamp) 62%, transparent);
+  border-radius:50%;
+  background:color-mix(in srgb, var(--stamp) 6%, transparent);
+}
+.menu-panel .menu-action .menu-icon svg{
+  width:14px;
+  height:14px;
+}
+.menu-panel .menu-action:hover .menu-icon{
+  background:color-mix(in srgb, var(--stamp) 14%, transparent);
+  transform:rotate(-4deg);
+}
+
+/* A real stamped seal is slightly angled rather than perfectly straight. */
+.ledger-cgpa-card{
+  transform:rotate(-5deg) !important;
+  transform-origin:center center;
+  margin:10px auto 16px !important;
+}
+.ledger-cgpa-main .stamp-label{
+  font-size:9px !important;
+  letter-spacing:.20em !important;
+}
+.ledger-cgpa-main .stamp-cgpa{
+  font-size:clamp(48px, 8vw, 68px) !important;
+}
+.ledger-cgpa-main .stamp-scale{
+  font-size:8px !important;
+  padding-top:6px !important;
+}
+.ledger-cgpa-top,
+.ledger-cgpa-bottom{
+  font-size:7px !important;
+}
+@media(max-width:560px){
+  .ledger-cgpa-card{
+    transform:rotate(-4deg) !important;
+    margin:8px auto 14px !important;
+  }
+  .ledger-cgpa-main .stamp-cgpa{
+    font-size:clamp(46px, 16vw, 62px) !important;
+  }
+}
+
+
+/* ===== CHANGE SET 10 — SMALLER SEAL / REFINED MENU MARKS / COPYRIGHT NOTICE ===== */
+/* Keep the stamped result compact, like a real academic seal. */
+.ledger-cgpa-card{
+  width:clamp(220px, 34vw, 300px) !important;
+  transform:rotate(-5deg) !important;
+  margin:8px auto 14px !important;
+}
+.ledger-cgpa-main .stamp-label{
+  font-size:8px !important;
+  letter-spacing:.18em !important;
+}
+.ledger-cgpa-main .stamp-cgpa{
+  font-size:clamp(42px, 6.8vw, 58px) !important;
+}
+.ledger-cgpa-main .stamp-scale{
+  font-size:7px !important;
+  padding-top:5px !important;
+}
+.ledger-cgpa-top,
+.ledger-cgpa-bottom{
+  font-size:6.5px !important;
+}
+@media(max-width:560px){
+  .ledger-cgpa-card{width:min(70vw,260px) !important;}
+  .ledger-cgpa-main .stamp-cgpa{font-size:clamp(40px,14vw,54px) !important;}
+}
+
+/* Make the HELP question mark and ABOUT information mark clearer at small sizes. */
+.menu-panel #menuHelp .menu-icon,
+.menu-panel #menuAbout .menu-icon{
+  border-color:var(--stamp);
+}
+.menu-panel #menuHelp .menu-icon svg,
+.menu-panel #menuAbout .menu-icon svg{
+  width:15px;
+  height:15px;
+  stroke-width:2;
+}
+.menu-panel #menuHelp .menu-icon svg{
+  filter:drop-shadow(0 0 1px color-mix(in srgb, var(--stamp) 35%, transparent));
+}
+.menu-panel #menuAbout .menu-icon{
+  background:color-mix(in srgb, var(--stamp) 9%, transparent);
+}
+
+/* Simple, effective ABOUT statement. */
+.about-hero p{
+  max-width:430px;
+  margin:0 auto !important;
+  color:var(--ink-muted);
+  font-size:13px;
+  letter-spacing:.055em;
+  line-height:1.6;
+}
+
+/* Clear ownership notice for the published website. */
+.about-block.about-rights{
+  padding-top:14px;
+  margin-top:8px;
+  border-top:1px dashed var(--rule);
+}
+.about-block.about-rights p{
+  font-size:11.5px;
+  line-height:1.65;
+  color:var(--ink-faint);
+}
+
+
+/* ===== CHANGE SET 12 — ABOUT COPY / COPYRIGHT / ACTION PANEL REFINEMENT ===== */
+/* Keep report choices clean and intentionally single-line. */
+#downloadPanel,
+#sharePanel{
+  min-width:300px !important;
+  width:max-content;
+  max-width:calc(100vw - 32px);
+}
+#downloadPanel button,
+#sharePanel button{
+  white-space:nowrap !important;
+  min-height:46px;
+  display:flex !important;
+  align-items:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+/* A slightly calmer hierarchy for the copy/share action sheet. */
+#sharePanel #shareCopy{
+  color:var(--ink-faint);
+  border-left-color:var(--stamp) !important;
+}
+#sharePanel #shareTo{
+  margin-top:2px;
+}
+
+/* Refined ABOUT introduction: concise, formal and ledger-like. */
+#aboutModal .about-hero p{
+  max-width:520px;
+  margin:0 auto 24px !important;
+  text-align:center;
+  font-size:12px !important;
+  line-height:1.7;
+  letter-spacing:.08em;
+}
+
+/* Formal website-style copyright notice without an extra trailing line. */
+.about-block.about-rights{
+  padding:16px 0 0 !important;
+  margin-top:12px !important;
+}
+.about-block.about-rights h4{
+  margin-bottom:9px;
+}
+.about-block.about-rights p{
+  font-size:11.5px !important;
+  line-height:1.72 !important;
+  color:var(--ink-faint) !important;
+}
+#aboutModal .about-footer{
+  display:none !important;
+}
+@media(max-width:560px){
+  #downloadPanel,
+  #sharePanel{
+    min-width:min(300px, calc(100vw - 28px)) !important;
+  }
+  #downloadPanel button,
+  #sharePanel button{
+    font-size:11.5px !important;
+    padding-right:10px !important;
+  }
+}
+
+
+/* ===== CHANGE SET 13 — CENTERED ACTION PANELS + COPYRIGHT REFINEMENT ===== */
+/* Keep every action item equally visible; COPY RESULT should not look disabled. */
+#sharePanel #shareCopy{
+  color:var(--ink) !important;
+}
+
+/* Open each sheet directly below the corresponding action and center it to the button. */
+.result-stage .action-anchor{
+  position:relative;
+}
+.result-stage .action-anchor > .action-panel{
+  top:calc(100% + 8px) !important;
+  left:50% !important;
+  right:auto !important;
+  transform:translateX(-50%);
+  margin-top:0 !important;
+}
+
+/* Keep the panel inside the viewport on very narrow screens while preserving centered placement. */
+@media(max-width:560px){
+  .result-stage .action-anchor > .action-panel{
+    min-width:min(300px, calc(100vw - 28px)) !important;
+    max-width:calc(100vw - 28px) !important;
+  }
+}
+
+/* Compact, formal ownership line below the copyright notice. */
+.about-rights-footer{
+  margin-top:10px;
+  padding-top:9px;
+  border-top:1px solid var(--rule);
+  color:var(--ink-muted);
+  font:700 10px var(--font-mono);
+  letter-spacing:.08em;
+}
+
+/* ===== CHANGE SET 14 — CONTACT / COMPACT COPYRIGHT / STRONGER BRAND ===== */
+/* Keep ARCHIVA in the existing top-left position, but give the brand more presence. */
+.brand > span{
+  font-size:24px !important;
+  line-height:1.05;
+  letter-spacing:.025em !important;
+}
+.brand small{
+  font-size:10.5px !important;
+  letter-spacing:.11em !important;
+  margin-top:4px !important;
+}
+@media(max-width:640px){
+  .brand > span{ font-size:20px !important; }
+  .brand small{ font-size:9px !important; }
+}
+
+/* Keep the ownership notice concise and avoid repeated wording. */
+.about-block.about-rights p{
+  max-width:760px;
+}
+.about-contact{
+  padding-top:2px !important;
+  margin-top:12px !important;
+}
+.about-contact h4{ margin-bottom:9px; }
+.about-contact p{
+  font-size:11.5px !important;
+  line-height:1.7 !important;
+  color:var(--ink-faint) !important;
+}
+.about-contact a{
+  color:var(--ink) !important;
+  text-decoration:none !important;
+  border-bottom:1px solid var(--stamp);
+  font-weight:700;
+  letter-spacing:.05em;
+}
+.about-contact a:hover{ color:var(--stamp) !important; }
+
+
+/* ===== FINAL CONFIRMED UPDATE — TAGLINE / BRAND / MOBILE ===== */
+/* Stronger ARCHIVA branding while preserving the existing top-left layout. */
+.brand > span{font-size:30px !important;line-height:1.02 !important;letter-spacing:.035em !important;}
+.brand small{font-size:11px !important;letter-spacing:.13em !important;margin-top:5px !important;}
+.hero h1{font-size:clamp(31px,5vw,58px) !important;}
+.hero .hero-single-line{font-size:clamp(8px,1.05vw,12px) !important;letter-spacing:.035em !important;}
+
+/* Aesthetic contact link and direct email launch. */
+.about-contact a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--rule);border-bottom:2px solid var(--stamp)!important;border-radius:3px;background:var(--paper);box-shadow:0 3px 0 rgba(0,0,0,.06);text-decoration:none!important;transition:transform .18s ease,box-shadow .18s ease;}
+.about-contact a::before{content:'✉';font-size:13px;color:var(--stamp);}
+.about-contact a:hover{transform:translateY(-1px);box-shadow:0 5px 0 rgba(0,0,0,.08);color:var(--ink)!important;}
+
+/* Make phone layouts genuinely usable without Desktop Site. */
+@media (max-width:760px){
+  .topbar{gap:10px;align-items:flex-start;}
+  .brand > span{font-size:clamp(20px,7vw,28px)!important;}
+  .brand small{font-size:8.5px!important;letter-spacing:.08em!important;}
+  .wrap{padding-left:12px!important;padding-right:12px!important;}
+  .card{padding-left:20px!important;padding-right:14px!important;}
+  .semester-workspace{display:block!important;width:100%!important;}
+  .semester-sidebar{width:100%!important;border-right:0!important;padding:8px 0 12px!important;}
+  .sem-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;}
+  .sem-tab{min-width:0!important;overflow:hidden;text-overflow:ellipsis;}
+  .sem-panel{width:100%!important;min-width:0!important;}
+}
+@media (max-width:560px){
+  .semester-sidebar-label{font-size:11px!important;}
+  .sem-panel-head{gap:8px;flex-wrap:wrap;}
+  .sem-panel-head h3{font-size:16px!important;}
+  .semTableWrap{width:100%!important;overflow:visible!important;}
+  table.subjects,table.subjects tbody,table.subjects tr,table.subjects td{max-width:100%!important;box-sizing:border-box;}
+  table.subjects tr{margin-bottom:8px;}
+  table.subjects td{grid-template-columns:82px minmax(0,1fr)!important;overflow-wrap:anywhere;}
+  table.subjects td:nth-child(5){grid-template-columns:82px minmax(0,1fr)!important;}
+  table.subjects select.grade-select{max-width:100%!important;}
+  .btn-row{flex-direction:column!important;align-items:stretch!important;}
+  .action-anchor{width:100%!important;}
+  .btn-row .btn{width:100%!important;}
+}
+
+
+/* ===== LATEST REFINEMENT — INPUT TYPOGRAPHY / BRAND SCALE / CONTACT ===== */
+/* Keep all record values in the same clean ledger typeface as Roll Number. */
+#studentName, #rollNumber, #department, #regulation{
+  font-family:var(--font-mono)!important;
+  font-weight:700!important;
+  letter-spacing:.055em!important;
+}
+#department, #regulation{font-size:14.5px!important;}
+
+/* Give the ARCHIVA brand stronger visual priority than the supporting headline. */
+.brand > span{
+  font-size:42px!important;
+  line-height:.98!important;
+  letter-spacing:.04em!important;
+}
+.brand small{font-size:12px!important;letter-spacing:.14em!important;margin-top:7px!important;}
+.hero h1{font-size:clamp(28px,4.35vw,50px)!important;}
+.hero .hero-single-line{font-size:clamp(9px,1.15vw,13px)!important;letter-spacing:.045em!important;}
+
+/* Contact stays open and editorial — no surrounding box or button treatment. */
+.about-contact{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  padding:4px 0 0!important;
+  margin-top:16px!important;
+}
+.about-contact .contact-copy{
+  margin:0 0 8px!important;
+  font-size:11px!important;
+  letter-spacing:.11em!important;
+  color:var(--ink-faint)!important;
+}
+.about-contact .contact-email{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  gap:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-bottom:1px solid var(--stamp)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+  font-family:var(--font-mono)!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  letter-spacing:.075em!important;
+  transition:opacity .18s ease,color .18s ease!important;
+}
+.about-contact .contact-email::before{display:none!important;content:none!important;}
+.about-contact .contact-email:hover{transform:none!important;box-shadow:none!important;opacity:.78!important;}
+.email-neo{color:var(--stamp)!important;}
+.email-at{color:var(--ink)!important;padding:0 .12em;}
+.email-gmail{color:var(--ink)!important;}
+[data-theme="dark"] .email-gmail{color:#f0ece2!important;}
+
+@media(max-width:760px){
+  .brand > span{font-size:clamp(30px,10vw,38px)!important;}
+  .brand small{font-size:9px!important;letter-spacing:.1em!important;margin-top:5px!important;}
+  .hero h1{font-size:clamp(26px,9.5vw,38px)!important;}
+  .hero .hero-single-line{font-size:clamp(8px,2.65vw,10.5px)!important;}
+  .about-contact .contact-email{font-size:12px!important;letter-spacing:.05em!important;}
+}
+
+
+/* ========================================================================
+   FINAL MOBILE-FIRST REFINEMENT — PRIORITY: PHONE READABILITY
+   ======================================================================== */
+/* Brand: ARCHIVA remains the visual owner of the page. The colour transition
+   runs diagonally across the complete word instead of splitting individual letters. */
+.brand > span{
+  font-family:var(--font-display)!important;
+  font-size:46px!important;
+  line-height:.96!important;
+  letter-spacing:.045em!important;
+  font-weight:700!important;
+  color:var(--ink)!important;
+}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .brand > span{
+    background:linear-gradient(155deg,var(--ink) 0 56%,var(--stamp) 58% 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent!important;
+  }
+}
+.brand small,
+.brand small span{
+  color:var(--ink-muted)!important;
+  -webkit-text-fill-color:currentColor;
+}
+.brand .ledger-dot{color:var(--stamp)!important;}
+
+/* Supporting headline stays secondary to the website name. */
+.hero h1{font-size:clamp(27px,3.8vw,46px)!important;line-height:1.08!important;}
+.hero .hero-single-line{font-size:clamp(10px,1.08vw,13px)!important;line-height:1.65!important;max-width:100%!important;}
+
+/* Contact is editorial, not a card. Label and email stay on one clean line when space allows. */
+.about-contact .contact-line{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.about-contact .contact-copy{margin:0!important;white-space:nowrap;}
+.about-contact .contact-email{white-space:nowrap;}
+
+/* The existing tiny/compact selector mismatch was the main cause of the broken
+   phone subject table. These rules intentionally do NOT depend on data-layout. */
+@media (max-width:760px){
+  html,body{overflow-x:hidden!important;}
+  .topbar{padding:18px 16px 10px!important;align-items:center!important;}
+  .brand{min-width:0!important;}
+  .brand > span{font-size:clamp(32px,10vw,42px)!important;letter-spacing:.035em!important;}
+  .brand small{font-size:9px!important;letter-spacing:.09em!important;margin-top:6px!important;}
+  .wrap{width:100%!important;max-width:none!important;padding:4px 12px 64px!important;}
+  .hero{padding:18px 10px 22px!important;}
+  .hero h1{font-size:clamp(28px,10vw,39px)!important;}
+  .hero .hero-single-line{font-size:clamp(9px,2.65vw,11px)!important;letter-spacing:.03em!important;}
+  .card{width:100%!important;padding:20px 16px 20px 28px!important;}
+  .card::before{left:8px!important;}
+  .card-head{gap:8px!important;align-items:flex-start!important;}
+  .card-title{font-size:clamp(22px,7vw,30px)!important;}
+  .field-grid{grid-template-columns:1fr!important;gap:14px!important;}
+  .field input,.field select,#department,#regulation{font-size:clamp(15px,4.2vw,18px)!important;}
+  .semester-workspace{display:block!important;width:100%!important;border:1px solid var(--ink)!important;}
+  .semester-sidebar{width:100%!important;border-right:0!important;border-bottom:1px solid var(--ink)!important;padding:10px!important;}
+  .semester-sidebar-label{padding:2px 4px 10px!important;}
+  .sem-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important;}
+  .sem-tab{min-width:0!important;min-height:46px!important;padding:9px 8px!important;white-space:normal!important;}
+  .sem-panel{width:100%!important;padding:16px 12px 8px!important;}
+}
+
+/* True phone card layout for every viewport class, including data-layout=tiny. */
+@media (max-width:600px){
+  .semTableWrap{width:100%!important;overflow:visible!important;padding:0!important;}
+  table.subjects{display:block!important;width:100%!important;min-width:0!important;border-collapse:separate!important;border-spacing:0 10px!important;}
+  table.subjects thead{display:none!important;}
+  table.subjects tbody{display:block!important;width:100%!important;}
+  table.subjects tr{display:block!important;width:100%!important;margin:0 0 10px!important;padding:11px 12px!important;border:1px solid var(--rule)!important;border-radius:5px!important;background:var(--input-bg)!important;}
+  table.subjects td{display:grid!important;width:100%!important;grid-template-columns:78px minmax(0,1fr)!important;gap:10px!important;align-items:center!important;text-align:left!important;padding:7px 0!important;border:0!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;}
+  table.subjects td::before{content:attr(data-label)!important;display:block!important;color:var(--ink-faint)!important;font:700 9px var(--font-mono)!important;letter-spacing:.08em!important;text-transform:uppercase!important;}
+  table.subjects td:nth-child(1){display:none!important;}
+  table.subjects td:nth-child(2){font-family:var(--font-mono)!important;white-space:nowrap!important;}
+  table.subjects td:nth-child(3){font-size:14px!important;line-height:1.42!important;overflow-wrap:break-word!important;word-break:normal!important;}
+  table.subjects td:nth-child(4){font-family:var(--font-mono)!important;}
+  table.subjects td:nth-child(5){grid-template-columns:78px minmax(0,1fr)!important;}
+  table.subjects select.grade-select{width:100%!important;min-width:0!important;max-width:100%!important;min-height:42px!important;font-size:14px!important;}
+  .semTableWrap::after{display:none!important;content:none!important;}
+  .btn-row{flex-direction:column!important;align-items:stretch!important;gap:12px!important;}
+  .action-anchor,.btn-row .btn{width:100%!important;}
+  .action-panel{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:min(330px,calc(100vw - 32px))!important;min-width:0!important;}
+}
+
+/* Narrow phones: preserve a compact but readable hierarchy. */
+@media (max-width:380px){
+  .brand > span{font-size:31px!important;}
+  .brand small{font-size:8px!important;}
+  .hero h1{font-size:28px!important;}
+  .hero .hero-single-line{font-size:8.5px!important;}
+  table.subjects td{grid-template-columns:68px minmax(0,1fr)!important;gap:7px!important;}
+  table.subjects td:nth-child(5){grid-template-columns:68px minmax(0,1fr)!important;}
+}
+
+/* Keep the complete application responsive if the phone is rotated or split-screened. */
+@media (max-width:900px){
+  .field-grid{min-width:0!important;}
+  .sem-panel,.semester-sidebar,.semester-workspace,.semTableWrap{min-width:0!important;max-width:100%!important;}
+}
+
+
+
+/* ========================================================================
+   FINAL CHANGE — DIAGONAL ARCHIVA MARK / TWO-LINE COLOUR TAGLINE / GMAIL
+   ======================================================================== */
+/* ARCHIVA is one complete wordmark. The colour boundary is a single sharp
+   diagonal across the entire word: upper area light, lower area red. */
+.brand > span{
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  font-family:var(--font-display)!important;
+  font-weight:700!important;
+  color:var(--ink)!important;
+  -webkit-text-fill-color:var(--ink)!important;
+}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .brand > span{
+    background:linear-gradient(135deg,var(--ink) 0 48%,var(--stamp) 52% 100%)!important;
+    -webkit-background-clip:text!important;
+    background-clip:text!important;
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+  }
+}
+/* Keep the subtitle outside the gradient treatment. */
+.brand > span > small,
+.brand > span > small span{
+  background:none!important;
+  color:var(--ink-muted)!important;
+  -webkit-text-fill-color:currentColor!important;
+}
+.brand > span > small .ledger-dot{color:var(--stamp)!important;}
+
+/* The four instruction phrases intentionally form two clean lines.
+   Accent phrases are red; alternating phrases remain in the normal ink. */
+.hero .hero-single-line{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:2px!important;
+  max-width:100%!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+.hero .hero-line-group{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:baseline!important;
+  column-gap:.42em!important;
+  row-gap:2px!important;
+  width:100%!important;
+}
+.hero .hero-phrase{display:inline-block!important;color:var(--ink-muted)!important;}
+.hero .hero-phrase.accent{color:var(--stamp)!important;}
+
+/* Contact: open Gmail compose with To + prefilled uppercase subject. */
+.about-contact .contact-email{cursor:pointer!important;}
+
+@media (max-width:760px){
+  .hero{padding-left:12px!important;padding-right:12px!important;}
+  .hero .hero-single-line{
+    font-size:clamp(8.8px,2.5vw,10.8px)!important;
+    line-height:1.55!important;
+    letter-spacing:.025em!important;
+  }
+  .hero .hero-line-group{column-gap:.35em!important;}
+  .hero .hero-phrase{white-space:nowrap!important;}
+}
+
+@media (max-width:430px){
+  .brand > span{
+    font-size:clamp(36px,12vw,46px)!important;
+    letter-spacing:.025em!important;
+  }
+  .hero .hero-single-line{
+    font-size:clamp(8.2px,2.35vw,10px)!important;
+    line-height:1.5!important;
+  }
+  .hero .hero-line-group{column-gap:.28em!important;}
+}
+
+@media (max-width:350px){
+  .hero .hero-single-line{font-size:7.7px!important;letter-spacing:.015em!important;}
+  .hero .hero-line-group{column-gap:.2em!important;}
+}
+
+
+/* ========================================================================
+   FINAL PRIORITY UPDATE — DESKTOP + MOBILE BRAND / TAGLINE / CONTACT
+   ======================================================================== */
+
+/* ARCHIVA must remain the strongest visual identity on every screen size. */
+.brand > span{
+  font-size:clamp(48px,5.4vw,58px)!important;
+  line-height:.94!important;
+  letter-spacing:.045em!important;
+}
+
+/* A single diagonal boundary crosses the complete ARCHIVA wordmark:
+   upper area = normal light ink, lower area = ARCHIVA red. */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .brand > span{
+    background:linear-gradient(155deg,
+      var(--ink) 0%,
+      var(--ink) 48.5%,
+      var(--stamp) 51.5%,
+      var(--stamp) 100%)!important;
+    -webkit-background-clip:text!important;
+    background-clip:text!important;
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+  }
+}
+
+/* Keep the Academic Ledger subtitle independent from the diagonal wordmark. */
+.brand > span > small,
+.brand > span > small span{
+  background:none!important;
+  color:var(--ink-muted)!important;
+  -webkit-text-fill-color:currentColor!important;
+}
+
+/* Supporting headline stays clearly smaller than the ARCHIVA brand. */
+.hero h1{
+  font-size:clamp(26px,4vw,44px)!important;
+  line-height:1.08!important;
+}
+
+/* Desktop/tablet: all four instructions stay on one single line. */
+.hero .hero-single-line{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:baseline!important;
+  gap:.42em!important;
+  width:100%!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  font-size:clamp(8.5px,.98vw,12px)!important;
+  letter-spacing:.04em!important;
+}
+.hero .hero-line-group{
+  display:contents!important;
+}
+.hero .hero-phrase{
+  display:inline!important;
+  white-space:nowrap!important;
+}
+.hero .hero-phrase.accent{color:var(--stamp)!important;}
+.hero .hero-phrase:not(.accent){color:var(--ink-muted)!important;}
+
+/* Mobile only: intentionally arrange the same four phrases into two lines. */
+@media (max-width:760px){
+  .brand > span{
+    font-size:clamp(42px,13vw,52px)!important;
+    letter-spacing:.03em!important;
+  }
+
+  .hero h1{
+    font-size:clamp(27px,9.3vw,39px)!important;
+  }
+
+  .hero .hero-single-line{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:2px!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    font-size:clamp(8.6px,2.38vw,10.6px)!important;
+    letter-spacing:.025em!important;
+    line-height:1.55!important;
+  }
+
+  .hero .hero-line-group{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:baseline!important;
+    column-gap:.38em!important;
+    width:100%!important;
+    white-space:nowrap!important;
+  }
+
+  /* Keep the subject information wide and readable on phones. */
+  table.subjects td{
+    grid-template-columns:70px minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+  table.subjects td:nth-child(5){
+    grid-template-columns:70px minmax(0,1fr)!important;
+  }
+  table.subjects td:nth-child(3){
+    font-size:13.5px!important;
+    line-height:1.38!important;
+    letter-spacing:.015em!important;
+  }
+}
+
+/* Contact: always open Gmail compose with the exact recipient and subject. */
+.about-contact .contact-email{
+  white-space:nowrap!important;
+}
+
+
+/* FINAL BRAND ALIGNMENT — CENTER THE ARCHIVA BRAND NAME */
+.brand{
+  width:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+
+.brand > span{
+  display:block!important;
+  text-align:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* Keep the Academic Ledger line centered with the brand. */
+.brand > span > small{
+  display:block!important;
+  width:100%!important;
+  text-align:center!important;
+}
+
+
+/* Reduce FILE YOUR GRADES. GET IT STAMPED. size */
+.hero h1{
+  font-size:clamp(22px,3.2vw,36px)!important;
+  line-height:1.08!important;
+}
+@media (max-width:760px){
+  .hero h1{
+    font-size:clamp(24px,8vw,33px)!important;
+    line-height:1.08!important;
+  }
+}
+
+
+/* STAMPED INK EFFECT — FILE YOUR GRADES. GET IT STAMPED. */
+.hero h1{
+  position:relative!important;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent!important;
+  background:
+    radial-gradient(circle at 8% 22%, rgba(241,237,224,.18) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 23% 68%, rgba(192,58,48,.28) 0 1px, transparent 2px),
+    radial-gradient(circle at 41% 34%, rgba(255,255,255,.14) 0 1.3px, transparent 2.2px),
+    radial-gradient(circle at 58% 76%, rgba(192,58,48,.32) 0 1px, transparent 2px),
+    radial-gradient(circle at 74% 28%, rgba(255,255,255,.12) 0 1px, transparent 1.9px),
+    radial-gradient(circle at 91% 62%, rgba(192,58,48,.26) 0 1.2px, transparent 2px),
+    linear-gradient(165deg,
+      var(--ink) 0%,
+      var(--ink) 18%,
+      #d8d2c5 35%,
+      var(--ink) 52%,
+      #d9d3c6 67%,
+      var(--ink) 82%,
+      #c95a4f 100%)!important;
+  background-size:37px 31px, 43px 39px, 47px 41px, 53px 45px, 61px 49px, 67px 57px, 100% 100%!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.10))!important;
+}
+
+/* Red stamp wear appears naturally in selected parts of the letters. */
+.hero h1::selection{
+  color:var(--stamp);
+}
+
+
+/* ================================================================
+   UNIFIED ARCHIVA CGPA SEAL
+   The same two-circle stamped seal is used across the website and PDFs.
+   ================================================================ */
+.report-final-seal-wrap{
+  display:flex!important; justify-content:center!important; align-items:center!important;
+  margin-top:22px!important; padding:4px 0 2px!important;
+}
+.report-final-seal{
+  position:relative!important;
+  width:clamp(190px,24vw,245px)!important;
+  aspect-ratio:1!important;
+  border:2px solid var(--stamp)!important;
+  border-radius:50%!important;
+  display:flex!important; flex-direction:column!important;
+  align-items:center!important; justify-content:center!important;
+  background:var(--card)!important; color:var(--stamp)!important;
+  transform:rotate(-5deg)!important; transform-origin:center!important;
+  box-shadow:none!important; overflow:hidden!important;
+}
+.report-final-seal::before{
+  content:""!important; position:absolute!important; inset:10px!important;
+  border:1.25px solid color-mix(in srgb, var(--stamp) 78%, transparent)!important;
+  border-radius:50%!important; pointer-events:none!important;
+}
+.report-final-seal::after{ display:none!important; content:none!important; }
+.report-final-seal .seal-top,
+.report-final-seal .seal-bottom,
+.report-final-seal .seal-label{
+  position:relative!important; z-index:1!important; font-family:var(--font-mono)!important;
+  text-align:center!important; max-width:78%!important; overflow-wrap:anywhere!important;
+}
+.report-final-seal .seal-top{
+  margin-bottom:8px!important; color:var(--ink-muted)!important;
+  font-size:7px!important; letter-spacing:.13em!important; line-height:1.35!important;
+}
+.report-final-seal .seal-label{
+  color:var(--stamp)!important; font-size:9px!important; font-weight:700!important;
+  letter-spacing:.22em!important; margin-bottom:4px!important;
+}
+.report-final-seal .seal-score{
+  position:relative!important; z-index:1!important; color:var(--stamp)!important;
+  font-family:var(--font-display)!important; font-size:clamp(42px,5vw,58px)!important;
+  font-weight:700!important; line-height:1!important; letter-spacing:-.02em!important;
+}
+.report-final-seal .seal-bottom{
+  margin-top:8px!important; color:var(--stamp)!important; font-size:6.6px!important;
+  font-weight:700!important; letter-spacing:.12em!important; line-height:1.35!important;
+}
+.report-final-seal .seal-scale{
+  position:relative!important; z-index:1!important; margin-top:5px!important;
+  color:var(--ink-muted)!important; font:700 6.5px var(--font-mono)!important;
+  letter-spacing:.14em!important; max-width:72%!important; text-align:center!important;
+}
+@media(max-width:720px){ .report-final-seal{width:190px!important;} }
+
+/* FINAL UNIFIED TWO-CIRCLE CGPA SEAL — used above View Complete Academic Report. */
+.ledger-cgpa-card{
+  border:2px solid var(--stamp)!important;
+  box-shadow:var(--shadow)!important;
+  overflow:hidden!important;
+}
+.ledger-cgpa-card::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:10px!important;
+  border:1.25px solid color-mix(in srgb, var(--stamp) 78%, transparent)!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+.ledger-cgpa-card::after{display:none!important; content:none!important;}
+.ledger-cgpa-top,.ledger-cgpa-bottom,.ledger-cgpa-main{position:relative!important; z-index:1!important;}
+.ledger-cgpa-top,.ledger-cgpa-bottom{max-width:78%!important; line-height:1.35!important; text-align:center!important;}
+.ledger-cgpa-main .stamp-label{font-size:9px!important; letter-spacing:.20em!important;}
+.ledger-cgpa-main .stamp-scale{font-size:7px!important; max-width:72%!important; text-align:center!important;}
+
+
+/* ================================================================
+   FINAL UNIFIED ARCHIVA ACADEMIC STAMP
+   Same seal above View Complete Academic Report, inside the report,
+   and in both generated PDFs through drawArchivaSealPdf().
+   ================================================================ */
+.ledger-cgpa-card,
+.report-final-seal{
+  position:relative!important;
+  aspect-ratio:1/1!important;
+  border:2px solid var(--stamp)!important;
+  border-radius:50%!important;
+  background:var(--card)!important;
+  color:var(--stamp)!important;
+  overflow:hidden!important;
+  box-shadow:none!important;
+}
+.ledger-cgpa-card{
+  width:clamp(230px,34vw,300px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transform:rotate(-8deg)!important;
+  transform-origin:center center!important;
+  margin:12px auto 18px!important;
+}
+.report-final-seal{
+  width:clamp(205px,25vw,255px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  transform:rotate(-8deg)!important;
+  transform-origin:center center!important;
+}
+.ledger-cgpa-card::before,
+.report-final-seal::before{
+  content:""!important;
+  position:absolute!important;
+  inset:11px!important;
+  border:1.2px solid color-mix(in srgb,var(--stamp) 82%,transparent)!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+.ledger-cgpa-card::after,
+.report-final-seal::after{display:none!important;content:none!important;}
+
+.ledger-cgpa-top,
+.ledger-cgpa-bottom,
+.ledger-cgpa-main,
+.report-final-seal .seal-top,
+.report-final-seal .seal-label,
+.report-final-seal .seal-score,
+.report-final-seal .seal-scale,
+.report-final-seal .seal-bottom{
+  position:relative!important;
+  z-index:2!important;
+}
+.ledger-cgpa-top,
+.ledger-cgpa-bottom{
+  width:72%!important;
+  max-width:72%!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px 8px!important;
+  border:0!important;
+  padding:0!important;
+  min-height:0!important;
+  font-size:7px!important;
+  letter-spacing:.16em!important;
+  line-height:1.45!important;
+  text-align:center!important;
+}
+.ledger-cgpa-top span,
+.ledger-cgpa-bottom span{white-space:nowrap!important;}
+.ledger-cgpa-top span:first-child::after,
+.ledger-cgpa-bottom span:first-child::after{content:" · "!important;}
+.ledger-cgpa-main{
+  width:100%!important;
+  padding:5px 10px 4px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+.ledger-cgpa-main .stamp-label,
+.report-final-seal .seal-label{
+  border:0!important;
+  padding:0!important;
+  margin:4px 0 1px!important;
+  color:var(--stamp)!important;
+  font-family:var(--font-mono)!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:.24em!important;
+  line-height:1.2!important;
+}
+.ledger-cgpa-main .stamp-cgpa,
+.report-final-seal .seal-score{
+  position:relative!important;
+  z-index:3!important;
+  margin:0!important;
+  color:var(--stamp)!important;
+  font-family:var(--font-display)!important;
+  font-size:clamp(48px,7.4vw,64px)!important;
+  font-weight:700!important;
+  line-height:.96!important;
+  letter-spacing:-.03em!important;
+  text-shadow:none!important;
+}
+
+/* View Complete Academic Report seal: lift only the dynamic CGPA number
+   slightly upward and diagonally to sit more naturally over the VERIFIED stamp. */
+.report-final-seal .seal-score{
+  transform:translate(3px,-8px)!important;
+}
+.stamp-verified,
+.seal-verified{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%) rotate(-8deg)!important;
+  z-index:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:68%!important;
+  height:38px!important;
+  color:color-mix(in srgb,var(--stamp) 48%,transparent)!important;
+  font-family:var(--font-mono)!important;
+  font-size:9px!important;
+  font-weight:700!important;
+  letter-spacing:.25em!important;
+  opacity:.78!important;
+  white-space:nowrap!important;
+  pointer-events:none!important;
+}
+.stamp-verified::before,
+.stamp-verified::after,
+.seal-verified::before,
+.seal-verified::after{
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  border-top:1px solid color-mix(in srgb,var(--stamp) 55%,transparent)!important;
+}
+.stamp-verified::before,
+.seal-verified::before{top:3px!important;}
+.stamp-verified::after,
+.seal-verified::after{bottom:3px!important;}
+.ledger-cgpa-main .stamp-scale,
+.report-final-seal .seal-scale{
+  position:relative!important;
+  z-index:3!important;
+  min-width:0!important;
+  border:0!important;
+  margin:4px 0 0!important;
+  padding:0!important;
+  color:var(--ink-muted)!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.15em!important;
+  text-align:center!important;
+}
+.ledger-cgpa-bottom,
+.report-final-seal .seal-bottom{
+  margin-top:6px!important;
+  color:var(--stamp)!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.14em!important;
+  line-height:1.45!important;
+  text-align:center!important;
+}
+.report-final-seal .seal-top{
+  width:74%!important;
+  margin:0 0 7px!important;
+  color:var(--ink-muted)!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.14em!important;
+  line-height:1.45!important;
+  text-align:center!important;
+}
+.report-final-seal .seal-bottom{max-width:74%!important;}
+@media(max-width:560px){
+  .ledger-cgpa-card{width:min(72vw,270px)!important;transform:rotate(-8deg)!important;}
+  .report-final-seal{width:min(62vw,225px)!important;transform:rotate(-8deg)!important;}
+  .ledger-cgpa-main .stamp-cgpa{font-size:clamp(44px,15vw,60px)!important;}
+  .report-final-seal .seal-score{font-size:clamp(42px,13vw,56px)!important;}
+}
+
+
+
+/* ===== FINAL CGPA NUMBER FONT REFINEMENT =====
+   Only the CGPA number gets a different, more aesthetic font.
+   Its size, placement and tilt remain unchanged. */
+.ledger-cgpa-main .stamp-cgpa,
+.report-final-seal .seal-score{
+  color:#ff8a7c!important;
+  background:none!important;
+  -webkit-background-clip:initial!important;
+  background-clip:initial!important;
+  -webkit-text-fill-color:currentColor!important;
+  font-family:"Palatino Linotype","Book Antiqua",Palatino,serif!important;
+  font-size:clamp(54px,8vw,70px)!important;
+  font-weight:800!important;
+  letter-spacing:-.045em!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.08), 1px 2px 0 rgba(178,58,46,.22)!important;
+}
+.report-final-seal .seal-score{
+  transform:translate(3px,-8px)!important;
+}
+@media(max-width:560px){
+  .ledger-cgpa-main .stamp-cgpa{font-size:clamp(48px,16vw,64px)!important;}
+  .report-final-seal .seal-score{font-size:clamp(46px,14vw,60px)!important;}
+}
+
+/* Mobile-safe in-page PDF preview: avoids Android's blank native iframe viewer. */
+.pdf-canvas-preview{
+  width:100%; min-height:240px; max-height:64vh; overflow:auto;
+  border:1.5px solid var(--ink); border-radius:var(--radius-s);
+  background:#f7f4ec; padding:8px; box-sizing:border-box;
+}
+.pdf-canvas-preview canvas{
+  display:block; width:100%; height:auto; margin:0 auto 10px;
+  box-shadow:0 1px 4px rgba(0,0,0,.22); background:white;
+}
+.pdf-preview-frame{ display:none; }
+.pdf-canvas-preview.is-empty{ display:flex; align-items:center; justify-content:center; color:var(--ink-muted); font-family:var(--font-mono); }
+.report-bottom-toggle-wrap{ display:flex; justify-content:center; margin:20px 0 4px; }
+.report-bottom-toggle{ font-size:11px; padding:9px 16px; min-height:40px; }
+@media(max-width:560px){
+  .pdf-canvas-preview{ min-height:220px; max-height:58dvh; padding:6px; }
+  .report-bottom-toggle{ width:min(100%,360px); font-size:10.5px; padding:9px 12px; }
+}
+
+/* ================================================================
+   FINAL LOCKED ARCHIVA SEAL
+   Calculate & Seal, View Complete Academic Report and both PDF
+   generators share this exact two-circle stamp design.
+   ================================================================ */
+.ledger-cgpa-card,
+.report-final-seal{
+  --archiva-seal-size:clamp(240px,36vw,300px);
+  position:relative!important;
+  width:var(--archiva-seal-size)!important;
+  aspect-ratio:1/1!important;
+  min-height:0!important;
+  border:2px solid var(--stamp)!important;
+  border-radius:50%!important;
+  background:var(--card)!important;
+  color:var(--stamp)!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  transform:rotate(-8deg)!important;
+  transform-origin:center center!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:14px auto 20px!important;
+}
+.report-final-seal::before,
+.ledger-cgpa-card::before{
+  content:""!important;
+  position:absolute!important;
+  inset:11px!important;
+  border:1.2px solid color-mix(in srgb,var(--stamp) 82%,transparent)!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+.report-final-seal::after,
+.ledger-cgpa-card::after{display:none!important;content:none!important;}
+
+/* Top identity is the same visual line in both seals. */
+.ledger-cgpa-top,
+.report-final-seal .seal-top{
+  position:relative!important;
+  z-index:3!important;
+  width:76%!important;
+  max-width:none!important;
+  margin:0 0 10px!important;
+  padding:0!important;
+  border:0!important;
+  min-height:0!important;
+  color:var(--ink-muted)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:8px!important;
+  font-weight:700!important;
+  letter-spacing:.16em!important;
+  line-height:1.35!important;
+}
+.ledger-cgpa-top{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+}
+.ledger-cgpa-top span{white-space:nowrap!important;}
+.ledger-cgpa-top span:first-child::after{content:" · "!important;}
+.ledger-cgpa-top span:last-child::after{content:none!important;}
+
+.ledger-cgpa-main{
+  position:relative!important;
+  z-index:3!important;
+  width:100%!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.ledger-cgpa-main .stamp-label,
+.report-final-seal .seal-label{
+  position:relative!important;
+  z-index:4!important;
+  margin:0 0 5px!important;
+  padding:0!important;
+  border:0!important;
+  color:var(--stamp)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:.24em!important;
+}
+
+/* VERIFIED and its two rules stay directly behind the dynamic CGPA. */
+.stamp-verified,
+.seal-verified{
+  position:absolute!important;
+  z-index:1!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-48%) rotate(-2deg)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:70%!important;
+  height:36px!important;
+  color:color-mix(in srgb,var(--stamp) 52%,transparent)!important;
+  font-family:var(--font-mono)!important;
+  font-size:9px!important;
+  font-weight:700!important;
+  letter-spacing:.26em!important;
+  white-space:nowrap!important;
+  opacity:.82!important;
+  pointer-events:none!important;
+}
+.stamp-verified::before,
+.stamp-verified::after,
+.seal-verified::before,
+.seal-verified::after{
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  border-top:1px solid color-mix(in srgb,var(--stamp) 65%,transparent)!important;
+}
+.stamp-verified::before,.seal-verified::before{top:3px!important;}
+.stamp-verified::after,.seal-verified::after{bottom:3px!important;}
+
+.ledger-cgpa-main .stamp-cgpa,
+.report-final-seal .seal-score{
+  position:relative!important;
+  z-index:4!important;
+  margin:0!important;
+  transform:translate(3px,-8px)!important;
+  color:#ff8a7c!important;
+  background:none!important;
+  -webkit-text-fill-color:currentColor!important;
+  text-align:center!important;
+  font-family:"Palatino Linotype","Book Antiqua",Palatino,serif!important;
+  font-size:clamp(54px,8vw,70px)!important;
+  font-weight:800!important;
+  line-height:.95!important;
+  letter-spacing:-.045em!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.08),1px 2px 0 rgba(178,58,46,.22)!important;
+}
+
+.ledger-cgpa-main .stamp-scale,
+.report-final-seal .seal-scale{
+  position:relative!important;
+  z-index:4!important;
+  margin:7px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  min-width:0!important;
+  color:var(--ink-muted)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.15em!important;
+}
+.ledger-cgpa-bottom,
+.report-final-seal .seal-bottom{
+  position:relative!important;
+  z-index:4!important;
+  width:76%!important;
+  max-width:none!important;
+  margin:12px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  color:var(--stamp)!important;
+  text-align:center!important;
+  font-family:var(--font-mono)!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  letter-spacing:.14em!important;
+  line-height:1.35!important;
+}
+.ledger-cgpa-bottom{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+.ledger-cgpa-bottom span:first-child::after{content:" · "!important;}
+.ledger-cgpa-bottom span:last-child::after{content:none!important;}
+
+.report-final-seal-wrap{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  margin-top:22px!important;
+  padding:0!important;
+}
+
+@media(max-width:560px){
+  .ledger-cgpa-card,
+  .report-final-seal{
+    --archiva-seal-size:min(72vw,270px);
+    margin:12px auto 18px!important;
+  }
+  .ledger-cgpa-main .stamp-cgpa,
+  .report-final-seal .seal-score{
+    font-size:clamp(48px,16vw,64px)!important;
+  }
+}
+
+/* This change affects normal mobile view only. Desktop behavior remains unchanged. */
+@media (max-width:600px){
+  /* Keep each option sheet attached directly below its own button. */
+  .result-stage .action-anchor{
+    position:relative !important;
+    overflow:visible !important;
+  }
+
+  #downloadPanel.show,
+  #sharePanel.show{
+    position:absolute !important;
+    top:calc(100% + 8px) !important;
+    bottom:auto !important;
+    left:50% !important;
+    right:auto !important;
+    width:min(300px, calc(100vw - 28px)) !important;
+    min-width:min(300px, calc(100vw - 28px)) !important;
+    max-width:calc(100vw - 28px) !important;
+    transform:translateX(-50%) !important;
+    margin:0 !important;
+    z-index:9999 !important;
+    display:block !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+
+  #downloadPanel.show button,
+  #sharePanel.show button{
+    min-height:48px !important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+}
+
+/* Privacy & Terms menu/modal: same visual system as the existing menu. */
+.menu-panel #menuPrivacy .menu-icon{ display:flex; align-items:center; justify-content:center; }
+.menu-panel #menuPrivacy .menu-icon svg{ width:18px; height:18px; }
+#privacyModal .modal-body{ text-transform:none; letter-spacing:normal; }
+#privacyModal .modal-body h4,
+#privacyModal .modal-body .about-rights-footer,
+#privacyModal .modal-header h3{ text-transform:uppercase; }
+/* Match Privacy body text exactly to the Copyright & Use body text. */
+#privacyModal .privacy-copy p{
+  font-size:11.5px !important;
+  line-height:1.72 !important;
+  color:var(--ink-faint) !important;
+  font-family:inherit !important;
+  letter-spacing:normal !important;
+  text-transform:uppercase !important;
+}
+
+/* Ensure the fourth menu item remains touchable on mobile. */
+#menuPrivacy{ position:relative; z-index:10; pointer-events:auto; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+
+/* Final interaction hardening for Privacy & Terms. */
+#menuPrivacy{position:relative!important; z-index:99999!important; pointer-events:auto!important; touch-action:manipulation!important; cursor:pointer!important;}
+#menuPanel.show #menuPrivacy{display:flex!important; align-items:center!important;}
