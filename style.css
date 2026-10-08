@@ -2636,3 +2636,66 @@ input::placeholder, textarea::placeholder {
   .sem-selection-help .sem-help-one{display:none!important;}
   .sem-selection-help .sem-help-two{display:inline-block!important;line-height:1.45;}
 }
+
+
+/* ===== MOBILE SEMESTER HEADER =====
+   Keep the active semester title visible while scrolling through its subjects.
+   Desktop behavior remains unchanged. */
+@media (max-width: 600px){
+  .sem-panel-head{
+    position:sticky!important;
+    top:0!important;
+    z-index:50!important;
+    margin:0 0 10px!important;
+    padding:10px 4px 9px!important;
+    background:var(--card)!important;
+    border-bottom:1px solid var(--rule)!important;
+  }
+  .sem-panel-head h3{
+    position:relative!important;
+    z-index:51!important;
+  }
+}
+
+/* ===== MOBILE UX FIX — MODAL CLOSE + STICKY SEMESTER SELECTOR ===== */
+/* Keep the How to Use header and close control above the scrollable content. */
+.modal-header{
+  z-index:1000!important;
+  isolation:isolate;
+  pointer-events:auto!important;
+}
+.modal-header .close-x{
+  position:relative!important;
+  z-index:1001!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  min-height:44px!important;
+  padding:0!important;
+  margin:-4px -4px 0 8px!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* On mobile/split-screen, keep the complete SEM 1–SEM 6 selector visible
+   while the subject content scrolls underneath it. */
+@media (max-width:720px){
+  .semester-sidebar{
+    position:sticky!important;
+    top:0!important;
+    z-index:80!important;
+    background:var(--card)!important;
+    border-bottom:1.5px solid var(--rule)!important;
+    box-shadow:0 6px 14px -12px rgba(0,0,0,.65);
+  }
+  .semester-sidebar-label,
+  .sem-tabs,
+  .sem-selection-help{
+    position:relative!important;
+    z-index:81!important;
+  }
+}
