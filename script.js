@@ -82,12 +82,19 @@ const state = {
   selectedSemesters: new Set(),
   activeSemester: 1,
   grades: {},          // { "SEM-CODE": "A+" }
+  customSemesters: {},  // { sem: [[code,name,credit], ...] }
   calculated: false,
   cgpa: 0,
   reportOpen: false,
 };
 
 function gradeKey(sem, code){ return sem + "-" + code; }
+function getSemesterSubjects(sem){
+  return state.customSemesters[sem] || SEMESTERS[sem] || [];
+}
+function cloneSubjects(subjects){
+  return (subjects || []).map(([code,name,credit]) => [String(code), String(name), Number(credit)]);
+}
 
 /* ---------------- Persistence ---------------- */
 function saveState(){
@@ -97,6 +104,7 @@ function saveState(){
       selectedSemesters: [...state.selectedSemesters],
       activeSemester: state.activeSemester,
       grades: state.grades,
+      customSemesters: state.customSemesters,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }catch(e){ /* storage unavailable — fail silently */ }
@@ -114,7 +122,7 @@ function clearSavedState(){
 
 /* ---------------- Calculation ---------------- */
 function computeSemesterGPA(sem){
-  const subjects = SEMESTERS[sem] || [];
+  const subjects = getSemesterSubjects(sem);
   let credits = 0, points = 0;
   let hasArrear = false;
   const arrears = [];
@@ -153,7 +161,7 @@ function computeOverall(){
 }
 
 function isSemesterComplete(sem){
-  const subjects = SEMESTERS[sem] || [];
+  const subjects = getSemesterSubjects(sem);
   return subjects.every(([code]) => !!state.grades[gradeKey(sem, code)]);
 }
 
@@ -186,8 +194,8 @@ function cacheEls(){
     "calcBtn","resultStage","cgpaValue","viewReportBtn","reportBlock",
     "reportStudentInfo","reportSemesters","reportSummaryTable","reportArrears","reportOverallCgpa",
     "downloadBtn","downloadPanel","shareBtn","sharePanel","shareCopy","shareTo",
-    "themeSwitch","menuToggle","menuPanel","menuReset","menuHelp","menuAbout","menuPrivacy",
-    "resetModal","confirmReset","helpModal","aboutModal",
+    "themeSwitch","menuToggle","menuPanel","menuReset","menuHelp","menuAbout",
+    "resetModal","confirmReset","helpModal","aboutModal","customizeTipModal","closeCustomizeTip","customizeTipGotIt","dontShowCustomizeTip","editSubjectsModal","editSubjectsSemTitle","editSubjectsRows","addSubjectBtn","saveSubjectsBtn",
     "pdfPreviewModal","pdfPreviewFrame","pdfPreviewTitle","pdfPreviewDownloadBtn",
     "recoverBanner","restoreRecover","dismissRecover",
     "toast","toastText",
@@ -195,6 +203,19 @@ function cacheEls(){
 }
 
 /* ---------------- Rendering: Semester folder tabs ---------------- */
+let customizeTipTriggered = false;
+function maybeShowCustomizeTip(){
+  if(customizeTipTriggered) return;
+  customizeTipTriggered = true;
+  try{
+    if(!localStorage.getItem("archiva_customize_tip_seen")){
+      setTimeout(()=>openModal(els.customizeTipModal), 120);
+    }
+  }catch(e){
+    setTimeout(()=>openModal(els.customizeTipModal), 120);
+  }
+}
+
 function renderSemList(){
   const semNums = Object.keys(SEMESTERS).map(Number);
   els.semTabs.innerHTML = semNums.map(sem => {
@@ -202,7 +223,7 @@ function renderSemList(){
     const active = state.activeSemester === sem;
     const r = selected ? computeSemesterGPA(sem) : null;
     return `<div class="sem-tab ${selected?'selected':''} ${active?'active':''}" data-sem="${sem}">
-      <span class="dot"></span><span>Sem ${sem}</span>
+      <span class="dot" aria-hidden="true"></span><span>Sem ${sem}</span>
       ${selected && r && r.credits>0 ? `<span class="gpa-tag">${r.gpa.toFixed(2)}</span>` : ""}
     </div>`;
   }).join("");
@@ -233,6 +254,7 @@ function toggleSemesterSelection(sem){
   clearSemSelectError();
   renderAll();
   saveState();
+  maybeShowCustomizeTip();
 }
 function clearSemSelectError(){
   els.semSelectError.style.color = "";
@@ -242,8 +264,8 @@ function clearSemSelectError(){
 /* ---------------- Rendering: subject table ---------------- */
 function renderSubjectTable(){
   const sem = state.activeSemester;
-  const subjects = SEMESTERS[sem] || [];
-  els.semPanelTitle.textContent = "Semester " + sem;
+  const subjects = getSemesterSubjects(sem);
+  els.semPanelTitle.textContent = `Semester ${sem}`;
 
   const rows = subjects.map(([code, name, credit], idx) => {
     const g = state.grades[gradeKey(sem, code)] || "";
@@ -285,12 +307,13 @@ function renderSubjectTable(){
 }
 function updateSemGpaLine(){
   const sem = state.activeSemester;
+  const editButton = `<button class="edit-subjects-btn" id="editSubjectsBtn" type="button" aria-label="Edit Semester ${sem}"><span class="edit-pen" aria-hidden="true">🖉</span><span>EDIT</span></button>`;
   if(!state.selectedSemesters.has(sem)){
-    els.semPanelGpa.textContent = "";
+    els.semPanelGpa.innerHTML = `${editButton}<span class="sem-gpa-value">Semester GPA&nbsp; <b>—</b></span>`;
     return;
   }
   const r = computeSemesterGPA(sem);
-  els.semPanelGpa.innerHTML = `Semester GPA&nbsp; <b>${r.credits>0 ? r.gpa.toFixed(2) : "—"}</b>`;
+  els.semPanelGpa.innerHTML = `${editButton}<span class="sem-gpa-value">Semester GPA&nbsp; <b>${r.credits>0 ? r.gpa.toFixed(2) : "—"}</b></span>`;
 }
 
 /* ---------------- Calculate ---------------- */
@@ -354,7 +377,7 @@ function renderReport(result){
 
   els.reportSemesters.innerHTML = result.semesters.map(sem => {
     const r = result.perSem[sem];
-    const subjects = SEMESTERS[sem];
+    const subjects = getSemesterSubjects(sem);
     const rows = subjects.map(([code,name,credit],i) => {
       const g = state.grades[gradeKey(sem,code)];
       return `<tr><td class="num">${i+1}</td><td>${code}</td><td>${name}</td><td class="num">${credit}</td><td class="num">${g}</td></tr>`;
@@ -390,6 +413,98 @@ function renderReport(result){
 }
 function escapeHtml(s){
   return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ---------------- Subject customization ---------------- */
+function openSubjectsEditor(){
+  const sem = state.activeSemester;
+  els.editSubjectsSemTitle.textContent = `SEMESTER ${sem} — EDIT`;
+  renderSubjectEditorRows();
+  openModal(els.editSubjectsModal);
+}
+
+function renderSubjectEditorRows(){
+  const sem = state.activeSemester;
+  const subjects = cloneSubjects(getSemesterSubjects(sem));
+  els.editSubjectsRows.innerHTML = subjects.map(([code,name,credit], i) => {
+    return `<div class="subject-editor-row" data-index="${i}">
+      <div class="subject-editor-index">${i+1}</div>
+      <label><span>Code</span><input class="editor-code" value="${escapeHtml(code)}" maxlength="30" autocomplete="off"></label>
+      <label class="editor-name-field"><span>Subject Name</span><input class="editor-name" value="${escapeHtml(name)}" maxlength="120" autocomplete="off"></label>
+      <label class="editor-credit-field"><span>Credits</span><input class="editor-credit" type="number" min="0" max="30" step="0.5" value="${Number(credit)}"></label>
+      <button class="editor-delete" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div>`;
+  }).join("");
+  els.editSubjectsRows.querySelectorAll(".editor-delete").forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.closest(".subject-editor-row").remove();
+      renumberEditorRows();
+    });
+  });
+}
+
+function renumberEditorRows(){
+  els.editSubjectsRows.querySelectorAll(".subject-editor-row").forEach((row,i)=>{
+    row.dataset.index = i;
+    row.querySelector(".subject-editor-index").textContent = i + 1;
+  });
+}
+
+function addSubjectEditorRow(){
+  const row = document.createElement("div");
+  row.className = "subject-editor-row";
+  row.dataset.index = els.editSubjectsRows.children.length;
+  row.innerHTML = `<div class="subject-editor-index">${els.editSubjectsRows.children.length+1}</div>
+    <label><span>Code</span><input class="editor-code" maxlength="30" placeholder="ECXXXXX" autocomplete="off"></label>
+    <label class="editor-name-field"><span>Subject Name</span><input class="editor-name" maxlength="120" placeholder="BRIDGE COURSE/CAPSTONE" autocomplete="off"></label>
+    <label class="editor-credit-field"><span>Credits</span><input class="editor-credit" type="number" min="0" max="30" step="0.5" value="0"></label>
+    <button class="editor-delete" type="button" title="Remove subject" aria-label="Remove subject">×</button>`;
+  els.editSubjectsRows.appendChild(row);
+  row.querySelector(".editor-delete").addEventListener("click", ()=>{ row.remove(); renumberEditorRows(); });
+  row.querySelector(".editor-code").focus();
+}
+
+function saveSubjectEditor(){
+  const sem = state.activeSemester;
+  const rows = [...els.editSubjectsRows.querySelectorAll(".subject-editor-row")];
+  const nextSubjects = [];
+  const seen = new Set();
+  let error = "";
+
+  rows.forEach(row => {
+    const code = row.querySelector(".editor-code").value.trim().toUpperCase();
+    const name = row.querySelector(".editor-name").value.trim();
+    const credit = Number(row.querySelector(".editor-credit").value);
+    if(!code || !name || !Number.isFinite(credit) || credit <= 0){ error = "Enter a valid code, subject name and credit for every subject."; return; }
+    if(seen.has(code)){ error = `Duplicate subject code: ${code}`; return; }
+    seen.add(code);
+    nextSubjects.push([code,name,credit]);
+    row.dataset.newCode = code;
+  });
+  if(error){ showToast(error); return; }
+  if(!nextSubjects.length){ showToast("At least one subject is required."); return; }
+
+  // Preserve grades when a code is renamed, using row position as the fallback mapping.
+  const oldSubjects = cloneSubjects(getSemesterSubjects(sem));
+  const oldGrades = {};
+  oldSubjects.forEach(([code]) => { oldGrades[code] = state.grades[gradeKey(sem,code)] || ""; });
+  const newGrades = {};
+  rows.forEach((row,i) => {
+    const code = nextSubjects[i][0];
+    const oldCode = oldSubjects[i]?.[0];
+    const grade = oldCode ? oldGrades[oldCode] : "";
+    if(grade) newGrades[gradeKey(sem,code)] = grade;
+  });
+  Object.keys(state.grades).forEach(k => { if(k.startsWith(sem+"-")) delete state.grades[k]; });
+  Object.assign(state.grades,newGrades);
+  state.customSemesters[sem] = nextSubjects;
+  state.calculated = false;
+  state.reportOpen = false;
+  saveState();
+  closeModal(els.editSubjectsModal);
+  renderAll();
+  els.reportBlock.classList.remove("show");
+  showToast(`Semester ${sem} subjects updated.`);
 }
 
 /* ---------------- Master render ---------------- */
@@ -442,6 +557,7 @@ function performReset(){
   state.selectedSemesters = new Set();
   state.activeSemester = 1;
   state.grades = {};
+  state.customSemesters = {};
   state.calculated = false;
   state.cgpa = 0;
 
@@ -463,6 +579,14 @@ function performReset(){
 function init(){
   cacheEls();
 
+  const closeCustomizeTip = () => {
+    if(els.dontShowCustomizeTip?.checked){
+      try{ localStorage.setItem("archiva_customize_tip_seen", "1"); }catch(e){}
+    }
+    closeModal(els.customizeTipModal);
+  };
+  els.closeCustomizeTip.addEventListener("click", closeCustomizeTip);
+  els.customizeTipGotIt.addEventListener("click", closeCustomizeTip);
   const savedTheme = (()=>{ try{ return localStorage.getItem("archiva_theme"); }catch(e){ return null; }})();
   setTheme(savedTheme === "light" ? "light" : "dark");
 
@@ -476,11 +600,19 @@ function init(){
   els.rollNumber.addEventListener("input", () => toggleFieldError(els.fieldRoll, false));
 
   els.calcBtn.addEventListener("click", runCalculate);
+  els.editSubjectsBtn = null;
+  els.addSubjectBtn.addEventListener("click", addSubjectEditorRow);
+  els.saveSubjectsBtn.addEventListener("click", saveSubjectEditor);
 
   els.viewReportBtn.addEventListener("click", () => {
     state.reportOpen = !state.reportOpen;
     els.reportBlock.classList.toggle("show", state.reportOpen);
     els.viewReportBtn.textContent = state.reportOpen ? "Hide Complete Academic Report" : "View Complete Academic Report";
+  });
+
+  els.semPanelGpa.addEventListener("click", (e) => {
+    const btn = e.target.closest && e.target.closest("#editSubjectsBtn");
+    if(btn){ e.preventDefault(); e.stopPropagation(); openSubjectsEditor(); }
   });
 
   // Theme controls
@@ -496,7 +628,6 @@ function init(){
   els.menuReset.addEventListener("click", () => { closeAllPanels(null); openModal(els.resetModal); });
   els.menuHelp.addEventListener("click", () => { closeAllPanels(null); openModal(els.helpModal); });
   els.menuAbout.addEventListener("click", () => { closeAllPanels(null); openModal(els.aboutModal); });
-  if(els.menuPrivacy){ els.menuPrivacy.addEventListener("click", () => { closeAllPanels(null); openModal(document.getElementById("privacyModal")); }); }
   els.confirmReset.addEventListener("click", () => { performReset(); closeModal(els.resetModal); });
 
   // Download panel
@@ -547,6 +678,7 @@ function init(){
       state.selectedSemesters = new Set(saved.selectedSemesters || []);
       state.activeSemester = saved.activeSemester || (state.selectedSemesters.values().next().value) || 1;
       state.grades = saved.grades || {};
+      state.customSemesters = saved.customSemesters || {};
       els.studentName.value = state.student.name || "";
       els.rollNumber.value = state.student.roll || "";
       renderAll();
@@ -854,7 +986,7 @@ async function generateFullPdf(result){
   result.semesters.forEach(sem=>{
     if(y>238){doc.addPage();referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");y=76;}
     y=ledgerSection(doc,`SEMESTER ${sem}`,y);
-    const rows=(SEMESTERS[sem]||[]).map((subject,i)=>{
+    const rows=(getSemesterSubjects(sem)||[]).map((subject,i)=>{
       const[code,name,credit]=subject;
       return[i+1,pdfUpper(code),pdfUpper(name),credit,pdfUpper(state.grades[gradeKey(sem,code)]||"")];
     });
@@ -1212,9 +1344,6 @@ async function shareToGeneric(){
     if(id === 'menuAbout'){
       e.preventDefault(); e.stopImmediatePropagation(); openModalSafe('aboutModal'); return;
     }
-    if(id === 'menuPrivacy'){
-      e.preventDefault(); e.stopImmediatePropagation(); openModalSafe('privacyModal'); return;
-    }
     if(id === 'menuReset'){
       e.preventDefault(); e.stopImmediatePropagation(); openModalSafe('resetModal'); return;
     }
@@ -1556,49 +1685,13 @@ async function shareToGeneric(){
   });
 })();
 
+
+/* Contact email behavior — preserve ARCHIVA's existing device-specific Gmail handling. */
 (function(){
-  const byId = id => document.getElementById(id);
-
-  function openPrivacy(e){
-    if(e){
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    }
-    const menu = byId('menuPanel');
-    const modal = byId('privacyModal');
-    if(menu) menu.classList.remove('show');
-    if(modal){
-      modal.classList.add('show');
-      document.body.classList.add('modal-open');
-    }
-  }
-
-  // Privacy & Terms: capture + direct button handling so it also works when a phone
-  // browser is switched to Desktop Site.
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest && e.target.closest('#menuPrivacy');
-    if(btn) openPrivacy(e);
-  }, true);
-
-  const privacyBtn = byId('menuPrivacy');
-  if(privacyBtn){
-    privacyBtn.onclick = openPrivacy;
-    privacyBtn.addEventListener('touchend', openPrivacy, {passive:false});
-    privacyBtn.addEventListener('pointerup', openPrivacy, {passive:false});
-  }
-
-  // Contact email behavior.
   function isPhoneOrTablet(){
     const ua = navigator.userAgent || '';
     if(/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return true;
     if(/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return true;
-
-    // "Request Desktop Site" on a phone browser swaps the user-agent string
-    // for a desktop-looking one (no "Android"/"Mobile" token), so the checks
-    // above miss it. The hardware is still a touch-only phone though: it has
-    // touch points and no real hover/fine pointer, unlike an actual laptop or
-    // desktop. Detect that combination so email still opens the normal way.
     const isTouchOnly = navigator.maxTouchPoints > 0 &&
       window.matchMedia &&
       window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -1611,18 +1704,14 @@ async function shareToGeneric(){
       e.stopPropagation();
       if(e.stopImmediatePropagation) e.stopImmediatePropagation();
     }
-
     const to = 'NEOKRITUS@gmail.com';
     const subject = 'WEBSITE QUERY - ARCHIVA';
     const mailto = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject);
     const gmailWeb = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + '&su=' + encodeURIComponent(subject);
 
     if(isPhoneOrTablet()){
-      // Phone/tablet: use the operating system's normal compose dialog/app chooser.
-      // This remains true even when the browser displays the desktop version of the site.
       window.location.href = mailto;
     }else{
-      // Laptop/desktop: open Gmail's compose page in a new tab, not Outlook.
       window.open(gmailWeb, '_blank', 'noopener');
     }
   }
@@ -1632,8 +1721,6 @@ async function shareToGeneric(){
     if(link) openContact(e);
   }, true);
 
-  const contact = byId('contactEmailLink');
-  if(contact){
-    contact.onclick = openContact;
-  }
+  const contact = document.getElementById('contactEmailLink');
+  if(contact) contact.onclick = openContact;
 })();
