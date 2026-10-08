@@ -685,6 +685,11 @@ function init(){
   }
   els.restoreRecover.addEventListener("click", () => {
     if(saved){
+      // Restoring a saved ledger starts a fresh customization-tip cycle.
+      // The tip will appear on the next SEM interaction, even if the user
+      // previously selected "Don't show this again".
+      customizeTipTriggered = false;
+      try{ localStorage.removeItem("archiva_customize_tip_seen"); }catch(e){}
       state.student = Object.assign(state.student, saved.student || {});
       state.selectedSemesters = new Set(saved.selectedSemesters || []);
       state.activeSemester = saved.activeSemester || (state.selectedSemesters.values().next().value) || 1;

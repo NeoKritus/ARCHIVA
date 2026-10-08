@@ -445,6 +445,7 @@ footer.site-footer{ text-align:center; padding: 30px 20px 50px; color: var(--ink
 .semester-sidebar{border-right:none;padding:8px 6px;background:transparent;}
 .semester-sidebar-label{padding:2px 6px 7px;font-size:9.5px;letter-spacing:.10em;white-space:nowrap;}
 .sem-tabs{gap:2px;}
+.sem-selection-help{container-type:inline-size;margin:8px 4px 0;text-align:center;color:var(--ink-muted);font:600 clamp(8.5px,1.1vw,10px) var(--font-mono);letter-spacing:.025em;line-height:1.35;white-space:nowrap;}.sem-help-two{display:none;}.sem-help-one,.sem-help-two{white-space:nowrap;}@container (max-width:220px){.sem-help-one{display:none;}.sem-help-two{display:inline-block;line-height:1.45;}}
 .sem-tab{padding:9px 8px;}
 .ledger-barcode{width:58px;height:14px;margin:0 8px;vertical-align:middle;}
 
@@ -541,6 +542,7 @@ body{ min-width:0; }
 #app[data-layout="compact"] .semester-sidebar-label{ padding-left:0; }
 #app[data-layout="compact"] .sem-tabs{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
 #app[data-layout="compact"] .sem-tab{ min-height:44px; padding:8px; white-space:normal; }
+#app[data-layout="compact"] .sem-selection-help{margin:8px 2px 0;font-size:9.5px;line-height:1.45;} 
 #app[data-layout="compact"] .sem-panel{ padding:16px 0 4px; }
 #app[data-layout="compact"] .sem-panel-head{ align-items:flex-start; }
 #app[data-layout="compact"] .semTableWrap{ overflow-x:auto; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
@@ -2616,3 +2618,21 @@ input::placeholder, textarea::placeholder {
 /* Remove the outer frame around Semester Sheets at every responsive width. */
 .semester-sheets-card{border:none!important;}
 .semester-workspace{border:none!important;}
+
+/* Final semester selection hint alignment: center it to the same width as the SEM list. */
+.sem-selection-help{
+  width:100%!important;
+  max-width:100%!important;
+  margin:8px 0 0!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+.sem-selection-help .sem-help-one,
+.sem-selection-help .sem-help-two{
+  white-space:nowrap!important;
+}
+@container (max-width:220px){
+  .sem-selection-help .sem-help-one{display:none!important;}
+  .sem-selection-help .sem-help-two{display:inline-block!important;line-height:1.45;}
+}

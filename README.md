@@ -60,7 +60,7 @@ The current version is configured for **Electronics and Communication Engineerin
 ## How It Works
 
 1. Enter the **student name** and **roll number**.
-2. Select one or more **semester sheets**.
+2. Select one or more **SEM sheets** — any combination, in any order, and tap a selected SEM again to unselect it
 3. If required, use **EDIT** to add, edit, or remove subjects or update their **code, name, or credits**.
 4. Mark the **grade** for every subject in the subject sheet.
 5. Select **Calculate & Seal**.
