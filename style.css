@@ -2657,6 +2657,31 @@ input::placeholder, textarea::placeholder {
   }
 }
 
+
+/* ===== MOBILE SEMESTER HEADING / GRADE ACCESSIBILITY =====
+   Keep the semester title on its own row so EDIT + GPA consistently sit below it.
+   Grade selectors remain visibly present but unavailable until that SEM is selected. */
+@media (max-width:560px){
+  .sem-panel-head{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:flex-start!important;
+    gap:8px!important;
+  }
+  .sem-panel-head h3{
+    width:100%!important;
+  }
+  .sem-gpa-line{
+    width:100%!important;
+    justify-content:flex-start!important;
+  }
+  table.subjects select.grade-select:disabled{
+    opacity:.58!important;
+    cursor:not-allowed!important;
+  }
+}
+
 /* ===== MOBILE UX FIX — MODAL CLOSE + STICKY SEMESTER SELECTOR ===== */
 /* Keep the How to Use header and close control above the scrollable content. */
 .modal-header{

@@ -273,12 +273,13 @@ function renderSubjectTable(){
     const options = ['<option value="">Select</option>'].concat(
       GRADE_ORDER.map(gr => `<option value="${gr}" ${gr===g?'selected':''}>${gr}</option>`)
     ).join("");
+    const semesterSelected = state.selectedSemesters.has(sem);
     return `<tr class="${missing?'grade-missing':''}" data-code="${code}">
       <td data-label="S.No">${idx+1}</td>
       <td class="code" data-label="Code">${code}</td>
       <td data-label="Subject">${name}</td>
       <td class="credit" data-label="Credit">${credit}</td>
-      <td data-label="Grade"><select class="grade-select ${g && ARREAR_GRADES.has(g)?'arrear':''}" data-code="${code}">${options}</select></td>
+      <td data-label="Grade"><select class="grade-select ${g && ARREAR_GRADES.has(g)?'arrear':''}" data-code="${code}" ${semesterSelected ? '' : 'disabled aria-disabled="true"'}>${options}</select></td>
     </tr>`;
   }).join("");
 
@@ -289,6 +290,11 @@ function renderSubjectTable(){
 
   els.semTableWrap.querySelectorAll("select.grade-select").forEach(sel => {
     sel.addEventListener("change", () => {
+      // Grades can only be entered for a semester that has been selected.
+      if(!state.selectedSemesters.has(sem)){
+        sel.value = "";
+        return;
+      }
       const code = sel.dataset.code;
       const val = sel.value;
       if(val){ state.grades[gradeKey(sem, code)] = val; }
