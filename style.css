@@ -2496,7 +2496,7 @@ input::placeholder, textarea::placeholder {
 
 /* -------- Subject customization editor -------- */
 .sem-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.edit-subjects-btn{border:1px solid var(--rule);background:transparent;color:var(--ink-muted);font:700 10px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;padding:7px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;}
+.edit-subjects-btn{border:1px solid var(--rule);background:transparent;color:var(--ink-muted);font:700 10px var(--font-mono);letter-spacing:.07em;text-transform:uppercase;padding:7px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;touch-action:manipulation;-webkit-tap-highlight-color:transparent;pointer-events:auto;position:relative;z-index:5;min-height:34px;}
 .edit-subjects-btn:hover{border-color:var(--stamp);color:var(--stamp);}
 .subject-editor-modal{max-width:1000px!important;}
 .subject-editor-note{border:1px dashed var(--rule);padding:10px 12px;margin-bottom:14px;color:var(--ink-muted);font:600 10px var(--font-mono);letter-spacing:.04em;line-height:1.6;}

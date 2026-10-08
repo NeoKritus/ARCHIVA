@@ -610,10 +610,21 @@ function init(){
     els.viewReportBtn.textContent = state.reportOpen ? "Hide Complete Academic Report" : "View Complete Academic Report";
   });
 
-  els.semPanelGpa.addEventListener("click", (e) => {
-    const btn = e.target.closest && e.target.closest("#editSubjectsBtn");
-    if(btn){ e.preventDefault(); e.stopPropagation(); openSubjectsEditor(); }
-  });
+  let editTouchHandledAt = 0;
+  const handleEditSubjectsTrigger = (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest("#editSubjectsBtn") : null;
+    if(!btn) return;
+    if(e.type === "click" && (Date.now() - editTouchHandledAt) < 700) return;
+    if(e.type === "pointerup" && e.pointerType !== "touch") return;
+    if(e.type === "pointerup") editTouchHandledAt = Date.now();
+    e.preventDefault();
+    e.stopPropagation();
+    openSubjectsEditor();
+  };
+  // Use delegated handlers so the dynamically-rendered EDIT button remains
+  // reliable on both desktop and touch devices.
+  els.semPanelGpa.addEventListener("pointerup", handleEditSubjectsTrigger);
+  els.semPanelGpa.addEventListener("click", handleEditSubjectsTrigger);
 
   // Theme controls
   els.themeSwitch.addEventListener("click", toggleTheme);
