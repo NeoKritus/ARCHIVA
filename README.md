@@ -32,7 +32,7 @@ The current version is configured for **Electronics and Communication Engineerin
 ### Academic Record Management
 
 - **Semester-wise grade entry** — Select any combination of semesters and enter grades subject by subject.
-- **Subject customization** — Use the **🖉 EDIT** option to add, edit, or remove subjects and update their code, name, or credits.
+- **Subject customization** — Use the **EDIT** option to add, edit, or remove subjects and update their code, name, or credits.
 - **Semester GPA calculation** — Calculates the GPA for each selected semester from the entered grades and credits.
 - **CGPA calculation** — Calculates the cumulative CGPA across the selected semesters using the configured grading logic.
 - **Arrear tracking** — Grades such as U, RA, SA, and W are identified as arrears and listed separately in the academic report.
@@ -61,7 +61,7 @@ The current version is configured for **Electronics and Communication Engineerin
 
 1. Enter the **student name** and **roll number**.
 2. Select one or more **semester sheets**.
-3. If required, use **🖉 EDIT** to add, edit, or remove subjects or update their **code, name, or credits**.
+3. If required, use **EDIT** to add, edit, or remove subjects or update their **code, name, or credits**.
 4. Mark the **grade** for every subject in the subject sheet.
 5. Select **Calculate & Seal**.
 6. ARCHIVA calculates the semester GPA and overall CGPA and displays the sealed result.

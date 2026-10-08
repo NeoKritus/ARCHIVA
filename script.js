@@ -307,7 +307,7 @@ function renderSubjectTable(){
 }
 function updateSemGpaLine(){
   const sem = state.activeSemester;
-  const editButton = `<button class="edit-subjects-btn" id="editSubjectsBtn" type="button" aria-label="Edit Semester ${sem}"><span class="edit-pen" aria-hidden="true">🖉</span><span>EDIT</span></button>`;
+  const editButton = `<button class="edit-subjects-btn" id="editSubjectsBtn" type="button" aria-label="Edit Semester ${sem}"><span>EDIT</span></button>`;
   if(!state.selectedSemesters.has(sem)){
     els.semPanelGpa.innerHTML = `${editButton}<span class="sem-gpa-value">Semester GPA&nbsp; <b>—</b></span>`;
     return;
