@@ -851,6 +851,14 @@ function referencePdfHeader(doc, title){
   doc.text(`DEPARTMENT    : ${dept}`,14,60);
   doc.text(`REGULATION    : ${pdfUpper(state.student.regulation)}`,14,66);
 }
+function referencePdfContinuationHeader(doc){
+  ledgerPdfBase(doc);
+  const w=doc.internal.pageSize.getWidth();
+  doc.setFillColor(31,32,35); doc.rect(0,0,w,24,"F");
+  doc.setFillColor(190,58,48); doc.rect(0,22,w,2,"F");
+  doc.setTextColor(245,241,230); doc.setFont("courier","bold"); doc.setFontSize(12);
+  doc.text("ARCHIVA  /  ACADEMIC LEDGER",14,14);
+}
 function referenceAutoTable(doc, options){
   if(typeof doc.autoTable!=="function") throw new Error("PDF TABLE ENGINE IS UNAVAILABLE.");
   const base={
@@ -1006,7 +1014,7 @@ async function generateFullPdf(result){
   const doc=new jsPDF({unit:"mm",format:"a4"}); referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");
   let y=76;
   result.semesters.forEach(sem=>{
-    if(y>238){doc.addPage();referencePdfHeader(doc,"COMPLETE ACADEMIC REPORT");y=76;}
+    if(y>238){doc.addPage();referencePdfContinuationHeader(doc);y=34;}
     y=ledgerSection(doc,`SEMESTER ${sem}`,y);
     const rows=(getSemesterSubjects(sem)||[]).map((subject,i)=>{
       const[code,name,credit]=subject;
